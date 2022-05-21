@@ -1,0 +1,17 @@
+<Project Sdk="Microsoft.NET.Sdk">
+
+  <PropertyGroup>
+    <TargetFramework>net5.0</TargetFramework>
+    <ProduceReferenceAssembly>False</ProduceReferenceAssembly>
+  </PropertyGroup>
+
+  <ItemGroup>
+    <Reference Include="SupaStuff.Core">
+      <HintPath>..\..\..\Builds\Core.dll</HintPath>
+    </Reference>
+    <Reference Include="SupaStuff.Core">
+      <HintPath>..\..\..\Builds\Core.dll</HintPath>
+    </Reference>
+  </ItemGroup>
+
+</Project>
