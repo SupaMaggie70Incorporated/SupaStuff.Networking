@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Net.Sockets;
+using System.Net;
 
 namespace SupaStuff.Net.Server
 {
@@ -12,22 +14,18 @@ namespace SupaStuff.Net.Server
         public NetworkStream stream;
         public Client.Client localClient;
         public bool IsLocal;
-        public readonly ServerClientData clientData;
         public List<Packet.Packet> packetsToWrite = new List<Packet.Packet>();
         public bool IsActive = true;
         Client.Client client;
         public HandshakeStage handshakeStage = HandshakeStage.unstarted;
         public ClientConnection(IAsyncResult ar)
         {
-            clientData = new ServerClientData(this);
             tcpClient = ServerHost.Instance.listener.EndAcceptTcpClient(ar);
             tcpClient.NoDelay = false;
             stream = tcpClient.GetStream();
-            Squirrelgame.ServerLogger.log("Recieved connection from " + tcpClient);
         }
         private ClientConnection()
         {
-            clientData = new ServerClientData(this);
             this.IsLocal = true;
             localClient = new Client.Client(this);
         }
@@ -134,7 +132,6 @@ namespace SupaStuff.Net.Server
                 stream.Dispose();
             }
             IsActive = false;
-            clientData.Dispose();
         }
         public async Task SendPacketTask(Packet.Packet packet)
         {

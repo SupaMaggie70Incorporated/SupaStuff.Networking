@@ -4,7 +4,6 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using SupaStuff.Net.Packet.Util;
-using SupaStuff.Core.Util;
 using System.Reflection;
 using SupaStuff.Net.Client;
 using SupaStuff.Net.Server;
@@ -57,7 +56,6 @@ namespace SupaStuff.Net.Packet
             }
             catch (Exception ex)
             {
-                Logger.UnityDebug.LogError("Nonfatal error caught in Packet.GetPacket(int,byte[],bool):\n" + ex.StackTrace);
             }
             if (packet == null)
             {

@@ -5,6 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Net.Sockets;
 using System.Net;
+using SupaStuff.Net.Server;
 
 namespace SupaStuff.Net.Client
 {
@@ -39,13 +40,11 @@ namespace SupaStuff.Net.Client
             var success = result.AsyncWaitHandle.WaitOne(timeSpan);
             if (!success)
             {
-                Squirrelgame.ClientLogger.log("Unable to connect");
                 return;
             }
             //Get the stream
             stream = tcpClient.GetStream();
             //Handshake packet
-            SendPacket(new HandshakeClient());
             IPAddress address;
             new SupaStuff.Net.Client.Client(address);
             //HELLO
@@ -55,9 +54,7 @@ namespace SupaStuff.Net.Client
             //Local client
             this.IsLocal = true;
             Instance = this;
-            Squirrelgame.ClientLogger.log("Client started");
             ServerHost.GetHost();
-            SendPacket(new HandshakeClient());
             localConnection = localconnection;
         }
         public void SendPacket(Packet.Packet packet)
