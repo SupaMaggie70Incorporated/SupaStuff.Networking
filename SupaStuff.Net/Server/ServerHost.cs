@@ -54,6 +54,7 @@ namespace SupaStuff.Net.Server
         public void RecievePacket(ClientConnection player, Packet.Packet packet)
         {
             packet.Execute(player);
+
         }
         public void Dispose()
         {

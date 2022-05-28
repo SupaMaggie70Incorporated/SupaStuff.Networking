@@ -26,7 +26,7 @@ namespace SupaStuff.Net.Client
 
             IsLocal = false;
             Instance = this;
-            Squirrelgame.ClientLogger.log("Client started");
+            Main.NetLogger.log("Client started");
             //Server script will calculate the local IP stuff for us
             ServerHost.GetHost();
             //New client to connect with

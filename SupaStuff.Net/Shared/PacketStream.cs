@@ -38,6 +38,9 @@ namespace SupaStuff.Net.Shared
         public byte[] packetBody = null;
         public int packetBodyIndex = 0;
         #endregion
+        /// <summary>
+        /// Called when an error occurs
+        /// </summary>
         public void onError()
         {
             isRunning = customOnError();
@@ -48,47 +51,11 @@ namespace SupaStuff.Net.Shared
                 }
             }
         }
-        [Obsolete]
-        public bool _TryGetPacket(out Packet.Packet packet)
-        {
-            if (!stream.DataAvailable || !stream.CanRead)
-            {
-                packet = null;
-                return false;
-            }
-            try
-            {
-                byte[] buffer = new byte[8];
-                stream.Read(buffer, 0, buffer.Length);
-                int packetid = BitConverter.ToInt32(buffer, 0);
-                int size = BitConverter.ToInt32(buffer, 4);
-                if (size > 1024)
-                    buffer = new byte[size];
-                int recievesize = stream.Read(buffer, 0, size);
-                byte[] packetbytes;
-                if (recievesize != size)
-                {
-                    onError();
-                    packet = null;
-                    return false;
-                }
-                else
-                {
-                    packetbytes = buffer;
-                    packet = Packet.Packet.GetPacket(packetid, packetbytes, !isServer);
-                    return true;
-                }
-            }
-            catch (Exception e)
-            {
-#if UNITY_EDITOR
-            Squirrelgame.MainLogger.log(e.StackTrace);
-#endif
-                onError();
-                packet = null;
-                return false;
-            }
-        }
+        /// <summary>
+        /// Tries to recieve a packet, if it can't recieve the whole thing saves what it did get to variables to be continued later
+        /// </summary>
+        /// <param name="packet"></param>
+        /// <returns></returns>
         public bool TryGetPacket(out Packet.Packet packet)
         {
             packet = null;
@@ -138,9 +105,17 @@ namespace SupaStuff.Net.Shared
                 return false;
             }
         }
+        /// <summary>
+        /// Called when a packet is recieved, to execute the packet's code and whatnot
+        /// </summary>
+        /// <param name="packet"></param>
         public void HandleIncomingPacket(Packet.Packet packet)
         {
         }
+        /// <summary>
+        /// Finish recieving a packet
+        /// </summary>
+        /// <returns></returns>
         public Packet.Packet FinishRecievePacket()
         {
             Packet.Packet packet = Packet.Packet.GetPacket(packetID, packetBody, !isServer);
@@ -148,6 +123,9 @@ namespace SupaStuff.Net.Shared
             return packet;
 
         }
+        /// <summary>
+        /// Cleans up variables after a packet is recieved
+        /// </summary>
         public void PacketCleanup()
         {
             packetID = -1;
@@ -159,16 +137,30 @@ namespace SupaStuff.Net.Shared
             packetHeaderComplete = false;
 
         }
+        /// <summary>
+        /// Whether or not a packet is ready to be recieved
+        /// </summary>
+        /// <returns></returns>
         public bool PacketAvailable()
         {
             return stream.DataAvailable;
         }
+        /// <summary>
+        /// The main constructor
+        /// </summary>
+        /// <param name="stream">The stream to send and recieve from</param>
+        /// <param name="isServer">Whether or not it is a server, used for packet decoding</param>
+        /// <param name="onError">The function to be called on errors</param>
         public PacketStream(NetworkStream stream, bool isServer, Func<bool> onError)
         {
             this.stream = stream;
             this.isServer = isServer;
             customOnError = onError;
         }
+        /// <summary>
+        /// Runs on the *thread pool*, constantly tries to send packets
+        /// </summary>
+        /// <returns></returns>
         private async Task SendPacketTask()
         {
             while (isRunning)
@@ -180,9 +172,13 @@ namespace SupaStuff.Net.Shared
                     await stream.WriteAsync(bytes, 0, bytes.Length);
                     packetsToWrite.RemoveAt(1);
                 }
+                Task.Delay(50);
             }
             currentTask = null;
         }
+        /// <summary>
+        /// Starts a loop to send packets periodically on the *thread pool*
+        /// </summary>
         public void StartSendLoop()
         {
             if (currentTask != null)
@@ -192,6 +188,9 @@ namespace SupaStuff.Net.Shared
             currentTask = SendPacketTask();
             currentTask.Start();
         }
+        /// <summary>
+        /// Takes the packet queue, iterates through them, removes them if stale, otherwise processes them
+        /// </summary>
         public void Update()
         {
             long time = DateTime.UtcNow.Ticks;
@@ -206,10 +205,17 @@ namespace SupaStuff.Net.Shared
                 }
             }
         }
+        /// <summary>
+        /// Called to ease up the Garbage collection by disposing manually
+        /// </summary>
         public void Dispose()
         {
 
         }
+        /// <summary>
+        /// Add the packet to the queue, to be sent when its ready
+        /// </summary>
+        /// <param name="packet"></param>
         public void SendPacket(Packet.Packet packet)
         {
             if (packetsToWrite.Count + 1 == packetsToWrite.Capacity)
@@ -221,7 +227,15 @@ namespace SupaStuff.Net.Shared
             packet.startTime = DateTime.UtcNow;
             packetsToWrite.Add(packet);
         }
+        /// <summary>
+        /// Delegate function for when you recieve a packet
+        /// </summary>
+        /// <param name="packet"></param>
+        /// <returns></returns>
         public delegate bool _OnRecievePacket(Packet.Packet packet);
+        /// <summary>
+        /// Called when a packet is recieved
+        /// </summary>
         public event _OnRecievePacket OnRecievePacket;
     }
 }
