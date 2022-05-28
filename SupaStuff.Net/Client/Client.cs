@@ -40,6 +40,7 @@ namespace SupaStuff.Net.Client
             stream = tcpClient.GetStream();
             //Handshake packet
             SendPacket(new HandshakeClient());
+            //hi
         }
         public Client(ClientConnection localconnection)
         {
