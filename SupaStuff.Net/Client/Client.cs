@@ -3,6 +3,8 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Net.Sockets;
+using System.Net;
 
 namespace SupaStuff.Net.Client
 {
@@ -14,6 +16,10 @@ namespace SupaStuff.Net.Client
         public bool IsLocal;
         public ClientConnection localConnection;
         // Start is called before the first frame update
+        /// <summary>
+        /// New client
+        /// </summary>
+        /// <param name="ip"></param>
         public Client(IPAddress ip)
         {
             //External client
@@ -40,6 +46,9 @@ namespace SupaStuff.Net.Client
             stream = tcpClient.GetStream();
             //Handshake packet
             SendPacket(new HandshakeClient());
+            IPAddress address;
+            new SupaStuff.Net.Client.Client(address);
+            //HELLO
         }
         public Client(ClientConnection localconnection)
         {
