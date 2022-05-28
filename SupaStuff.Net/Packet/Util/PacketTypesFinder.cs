@@ -11,6 +11,9 @@ namespace SupaStuff.Net.Packet.Util
         public static Dictionary<int, Type> s2ctypes;
         public static Dictionary<int, Func<byte[], Packet>> c2sConstructors;
         public static Dictionary<int, Func<byte[],Packet>> s2cConstructors;
+        /// <summary>
+        /// Gets the classes with the APacket attribute to add to a list, for easier encoding and decoding
+        /// </summary>
         public static void GetTypes()
         {
             c2stypes = new Dictionary<int, Type>();

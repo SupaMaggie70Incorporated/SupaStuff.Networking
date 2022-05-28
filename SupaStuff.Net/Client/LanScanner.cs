@@ -9,6 +9,10 @@ namespace SupaStuff.Net.Client
 {
     public static class LanScan
     {
+        /// <summary>
+        /// Gets the games on the current local network
+        /// </summary>
+        /// <returns></returns>
         public static List<IPEndPoint> GetLanGames()
         {
             List<IPEndPoint> list = new List<IPEndPoint>();

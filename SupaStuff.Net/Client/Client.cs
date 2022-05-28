@@ -17,10 +17,6 @@ namespace SupaStuff.Net.Client
         public bool IsLocal;
         public ClientConnection localConnection;
         // Start is called before the first frame update
-        /// <summary>
-        /// New client
-        /// </summary>
-        /// <param name="ip"></param>
         public Client(IPAddress ip)
         {
             //External client
@@ -57,6 +53,10 @@ namespace SupaStuff.Net.Client
             ServerHost.GetHost();
             localConnection = localconnection;
         }
+        /// <summary>
+        /// Send a packet over the stream
+        /// </summary>
+        /// <param name="packet"></param>
         public void SendPacket(Packet.Packet packet)
         {
             if (IsLocal)
@@ -73,6 +73,9 @@ namespace SupaStuff.Net.Client
                 else throw new Exception("Unable to send packet: server terminated connection");
             }
         }
+        /// <summary>
+        /// Try to recieve and write packets
+        /// </summary>
         public void OnUpdate()
         {
             if (!IsLocal)
@@ -80,10 +83,18 @@ namespace SupaStuff.Net.Client
                 TryRecievePacket();
             }
         }
+        /// <summary>
+        /// Execute the packet given
+        /// </summary>
+        /// <param name="packet"></param>
         public void RecievePacket(Packet.Packet packet)
         {
             packet.Execute(null);
         }
+        /// <summary>
+        /// Finish recieving a packet
+        /// </summary>
+        /// <returns></returns>
         public Packet.Packet RecievePacket()
         {
             byte[] buffer = new byte[8];
@@ -107,6 +118,9 @@ namespace SupaStuff.Net.Client
             }
 
         }
+        /// <summary>
+        /// See if there are any packets to be recieved
+        /// </summary>
         public void TryRecievePacket()
         {
             if (!tcpClient.Connected)
@@ -120,6 +134,9 @@ namespace SupaStuff.Net.Client
         }
         public delegate void OnMessage(Packet.Packet packet);
         public event OnMessage onMessage;
+        /// <summary>
+        /// GC assister
+        /// </summary>
         public void Dispose()
         {
             Instance = null;

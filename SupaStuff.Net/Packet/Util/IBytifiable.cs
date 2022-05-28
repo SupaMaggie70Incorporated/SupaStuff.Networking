@@ -6,6 +6,9 @@ using System.Threading.Tasks;
 
 namespace SupaStuff.Net.Packet.Util
 {
+    /// <summary>
+    /// The abstract class for bytifiable objects, such as packets, to ease the coding difficulty
+    /// </summary>
     public abstract class IBytifiable
     {
         public byte[] Bytify()
