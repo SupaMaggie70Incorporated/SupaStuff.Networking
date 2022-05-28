@@ -16,6 +16,9 @@ namespace SupaStuff.Net.Packet.Util
     {
         private static Dictionary<Type, Func<object, byte[]>> bytifyFunctions = new Dictionary<Type, Func<object, byte[]>>();
         private static Dictionary<Type, Func<byte[], object>> debytifyFunctions = new Dictionary<Type, Func<byte[], object>>();
+        /// <summary>
+        /// Finds the packets out there, collects them and their functions, and adds them to lists
+        /// </summary>
         public static void Init()
         {
             MethodInfo[] methods = TypeFinder.GetMethods();
@@ -70,6 +73,12 @@ namespace SupaStuff.Net.Packet.Util
 
         }
         */
+        /// <summary>
+        /// Turns an object into bytes
+        /// </summary>
+        /// <typeparam name="T"></typeparam>
+        /// <param name="obj"></param>
+        /// <returns></returns>
         public static byte[] Bytify<T>(T obj)
         {
             IBytifiable bytifiable = obj as IBytifiable;
@@ -203,7 +212,9 @@ namespace SupaStuff.Net.Packet.Util
                 this.b2o = b2o;
             }
         }
-
+        /// <summary>
+        /// 
+        /// </summary>
         [AttributeUsage(AttributeTargets.Field, AllowMultiple = true, Inherited = false)]
         public class AConvertField : Attribute
         {
