@@ -15,7 +15,8 @@ namespace SupaStuff.Net.Shared
         public NetworkStream stream;
         public bool isServer;
         public Func<bool> customOnError;
-        public List<Packet.Packet> packetsToWrite = new List<Packet.Packet>(16);
+        public List<Packet.Packet> packetsToWrite = new List<Packet.Packet>(1024);
+        public List<Packet.Packet> packetsToHandle = new List<Packet.Packet>(1024);
         public Task currentTask = null;
         public bool isRunning = true;
         public bool sendingPacket = false;
@@ -33,7 +34,6 @@ namespace SupaStuff.Net.Shared
 
         public bool packetHeaderComplete = false;
         public byte[] packetHeader = new byte[12];
-        public int packetHeaderIndex = 0;
         public int packetID = -1;
         public int packetSize = -1;
         public byte[] packetBody = null;
@@ -68,26 +68,33 @@ namespace SupaStuff.Net.Shared
             {
                 if (!packetHeaderComplete)
                 {
-                    int headerReqLength = packetSize - packetBodyIndex - 1;
-                    int headerAmountRead = stream.Read(packetBody, packetBodyIndex, headerReqLength);
+                    int headerReqLength = 12 - packetBodyIndex;
+                    int headerAmountRead = stream.Read(packetHeader, packetBodyIndex, headerReqLength);
                     if (headerAmountRead == headerReqLength)
                     {
                         packetID = BitConverter.ToInt32(packetHeader, 0);
                         packetSize = BitConverter.ToInt32(packetHeader, 4);
+                        packetHeaderComplete = true;
                     }
                     else
                     {
-                        packetHeaderIndex += headerAmountRead;
                         return false;
                     }
                 }
-                int reqLength = packetHeader.Length - packetHeaderIndex - 1;
-                int amountRead = stream.Read(packetHeader, packetHeaderIndex, reqLength);
+                int reqLength = packetSize - packetBodyIndex + 12;
+                int amountRead = stream.Read(packetBody, packetBodyIndex - 12, reqLength);
                 if (reqLength == amountRead)
                 {
                     packet = FinishRecievePacket();
-                    bool stop = OnRecievePacket(packet);
-                    if (!stop) HandleIncomingPacket(packet);
+                    if (OnRecievePacket != null)
+                    {
+                        bool stop = RecievePacketEvent(packet);
+                        if (!stop) HandleIncomingPacket(packet);
+                    }
+                    else
+                    {
+                        HandleIncomingPacket(packet);
+                    }
                     return true;
                 }
                 else
@@ -133,7 +140,6 @@ namespace SupaStuff.Net.Shared
             packetBody = null;
             packetBodyIndex = -1;
             packetHeader = new byte[8];
-            packetHeaderIndex = 0;
             packetSize = -1;
             packetHeaderComplete = false;
 
@@ -161,7 +167,6 @@ namespace SupaStuff.Net.Shared
         /// <summary>
         /// Begin asynchronous sending of packet queue
         /// </summary>
-
         public void StartSendPacket()
         {
             sendingPacket = true;
@@ -240,5 +245,18 @@ namespace SupaStuff.Net.Shared
         /// Called when a packet is recieved
         /// </summary>
         public event _OnRecievePacket OnRecievePacket;
+        public bool RecievePacketEvent(Packet.Packet packet)
+        {
+            _OnRecievePacket[] methods = (_OnRecievePacket[])OnRecievePacket.GetInvocationList();
+            bool shouldReturn = false;
+            foreach(_OnRecievePacket method in methods)
+            {
+                if(method.Invoke(packet))
+                {
+                    shouldReturn = true;
+                }
+            }
+            return shouldReturn;
+        }
     }
 }
