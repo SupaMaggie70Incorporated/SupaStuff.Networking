@@ -40,10 +40,7 @@ namespace SupaStuff.Net.Client
             }
             //Get the stream
             stream = tcpClient.GetStream();
-            //Handshake packet
-            IPAddress address;
-            new SupaStuff.Net.Client.Client(address);
-            //HELLO
+
         }
         public Client(ClientConnection localconnection)
         {

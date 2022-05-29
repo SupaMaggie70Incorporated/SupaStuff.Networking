@@ -18,6 +18,7 @@ namespace SupaStuff.Net.Shared
         public List<Packet.Packet> packetsToWrite = new List<Packet.Packet>(16);
         public Task currentTask = null;
         public bool isRunning = true;
+        public bool sendingPacket = false;
         public Packet.Packet currentPacketToSend;
         #region Packet buffer
         /*
@@ -158,36 +159,34 @@ namespace SupaStuff.Net.Shared
             customOnError = onError;
         }
         /// <summary>
-        /// Runs on the *thread pool*, constantly tries to send packets
+        /// Begin asynchronous sending of packet queue
         /// </summary>
-        /// <returns></returns>
-        private async Task SendPacketTask()
+
+        public void StartSendPacket()
         {
-            while (isRunning)
-            {
-                while (packetsToWrite.Count > 0 && stream.CanWrite)
-                {
-                    Packet.Packet packet = packetsToWrite[0];
-                    byte[] bytes = Packet.Packet.EncodePacket(packet);
-                    await stream.WriteAsync(bytes, 0, bytes.Length);
-                    packetsToWrite.RemoveAt(1);
-                }
-                Task.Delay(50);
-            }
-            currentTask = null;
+            sendingPacket = true;
+            byte[] bytes = Packet.Packet.EncodePacket(packetsToWrite[0]);
+            stream.BeginWrite(bytes,0,bytes.Length,new AsyncCallback(EndSendPacket),null);
+            packetsToWrite.RemoveAt(0);
         }
+
         /// <summary>
-        /// Starts a loop to send packets periodically on the *thread pool*
+        ///  Finish sending queue of packets, or keep going, up to you.
         /// </summary>
-        public void StartSendLoop()
+        /// <param name="ar"></param>
+        public void EndSendPacket(IAsyncResult ar)
         {
-            if (currentTask != null)
+            stream.EndWrite(ar);
+            if (packetsToWrite.Count > 0)
             {
-                return;
+                StartSendPacket();
             }
-            currentTask = SendPacketTask();
-            currentTask.Start();
+            else
+            {
+                sendingPacket = false;
+            }
         }
+
         /// <summary>
         /// Takes the packet queue, iterates through them, removes them if stale, otherwise processes them
         /// </summary>
@@ -203,6 +202,10 @@ namespace SupaStuff.Net.Shared
                     i--;
                     packetsToWrite.RemoveAt(i);
                 }
+            }
+            if(!sendingPacket && packetsToWrite.Count > 0)
+            {
+                StartSendPacket();
             }
         }
         /// <summary>
