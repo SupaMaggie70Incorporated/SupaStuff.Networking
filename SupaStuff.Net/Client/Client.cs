@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.Net.Sockets;
 using System.Net;
 using SupaStuff.Net.Server;
-
+using SupaStuff.Net.Shared;
 namespace SupaStuff.Net.Client
 {
     public class Client : IDisposable
@@ -16,6 +16,7 @@ namespace SupaStuff.Net.Client
         public static Client Instance;
         public bool IsLocal;
         public ClientConnection localConnection;
+        public PacketStream packetStream;
         // Start is called before the first frame update
         public Client(IPAddress ip)
         {
@@ -23,7 +24,6 @@ namespace SupaStuff.Net.Client
 
             IsLocal = false;
             Instance = this;
-            Main.NetLogger.log("Client started");
             //Server script will calculate the local IP stuff for us
             ServerHost.GetHost();
             //New client to connect with
@@ -40,6 +40,7 @@ namespace SupaStuff.Net.Client
             }
             //Get the stream
             stream = tcpClient.GetStream();
+            packetStream = new PacketStream(stream, false, () => false);
 
         }
         public Client(ClientConnection localconnection)
@@ -56,19 +57,7 @@ namespace SupaStuff.Net.Client
         /// <param name="packet"></param>
         public void SendPacket(Packet.Packet packet)
         {
-            if (IsLocal)
-            {
-                localConnection.RecievePacket(packet);
-            }
-            else
-            {
-                if (stream.CanWrite && tcpClient.Connected)
-                {
-                    byte[] buffer = packet.Bytify();
-                    stream.Write(buffer, 0, buffer.Length);
-                }
-                else throw new Exception("Unable to send packet: server terminated connection");
-            }
+            packetStream.SendPacket(packet);
         }
         /// <summary>
         /// Try to recieve and write packets
@@ -77,56 +66,7 @@ namespace SupaStuff.Net.Client
         {
             if (!IsLocal)
             {
-                TryRecievePacket();
-            }
-        }
-        /// <summary>
-        /// Execute the packet given
-        /// </summary>
-        /// <param name="packet"></param>
-        public void RecievePacket(Packet.Packet packet)
-        {
-            packet.Execute(null);
-        }
-        /// <summary>
-        /// Finish recieving a packet
-        /// </summary>
-        /// <returns></returns>
-        public Packet.Packet RecievePacket()
-        {
-            byte[] buffer = new byte[8];
-            stream.Read(buffer, 0, buffer.Length);
-            int packetid = BitConverter.ToInt32(buffer, 0);
-            int size = BitConverter.ToInt32(buffer, 4);
-            if (size > 1024)
-                buffer = new byte[size];
-            int recievesize = stream.Read(buffer, 0, size);
-            byte[] packetbytes;
-            if (recievesize != size)
-            {
-                Dispose();
-                return null;
-            }
-            else
-            {
-                packetbytes = buffer;
-                Packet.Packet packet = Packet.Packet.GetPacket(packetid, packetbytes, false);
-                return packet;
-            }
-
-        }
-        /// <summary>
-        /// See if there are any packets to be recieved
-        /// </summary>
-        public void TryRecievePacket()
-        {
-            if (!tcpClient.Connected)
-            {
-                Dispose();
-            }
-            if (stream.DataAvailable)
-            {
-                RecievePacket(RecievePacket());
+                packetStream.Update();
             }
         }
         public delegate void OnMessage(Packet.Packet packet);

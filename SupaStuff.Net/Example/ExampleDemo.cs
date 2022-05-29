@@ -6,9 +6,11 @@ using System.Threading.Tasks;
 using SupaStuff.Net;
 using SupaStuff.Net.Server;
 
+
+
 namespace SupaStuff.Net.Example
 {
-    class ExampleDemo
+    public class ExampleDemo
     {
         /// <summary>
         /// Example of how to use SupaStuff.Net
@@ -25,13 +27,24 @@ namespace SupaStuff.Net.Example
 
         public ExampleDemo()
         {
+            Console.WriteLine("Initiating Scarry Black Window...");
+            
             ServerHost testServer = new Server.ServerHost();
+            Console.WriteLine("Starting Server at\n     " + ServerHost.host.ToString() + ":" + ServerHost.port);
 
+            
+            Console.ReadKey();
 
+            Client.Client client = new Client.Client(ServerHost.host);
+            Console.WriteLine("Client Started");
 
+            Console.ReadKey();
 
-
+            Console.WriteLine("Closing Server...");
             testServer.Dispose();
+
+            Console.WriteLine("Completed Successfully");
+
         }
 
         

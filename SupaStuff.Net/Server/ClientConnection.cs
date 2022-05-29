@@ -5,7 +5,7 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Net.Sockets;
 using System.Net;
-
+using SupaStuff.Net.Shared;
 namespace SupaStuff.Net.Server
 {
     public class ClientConnection : IDisposable
@@ -18,11 +18,18 @@ namespace SupaStuff.Net.Server
         public bool IsActive = true;
         Client.Client client;
         public HandshakeStage handshakeStage = HandshakeStage.unstarted;
+        public PacketStream packetStream;
         public ClientConnection(IAsyncResult ar)
         {
             tcpClient = ServerHost.Instance.listener.EndAcceptTcpClient(ar);
+        }
+        public ClientConnection(TcpClient tcpClient)
+        {
+            this.tcpClient = tcpClient;
             tcpClient.NoDelay = false;
             stream = tcpClient.GetStream();
+            packetStream = new PacketStream(stream, true, () => false);
+            packetStream.clientConnection = this;
         }
         protected ClientConnection()
         {
@@ -42,26 +49,6 @@ namespace SupaStuff.Net.Server
         /// <param name="packet"></param>
         public void SendPacket(Packet.Packet packet)
         {
-            if (!IsLocal)
-            {
-                if (tcpClient != null && stream != null)
-                {
-                    if (!tcpClient.Connected)
-                    {
-                        Dispose();
-                        return;
-                    }
-                    if (!IsActive || !tcpClient.Connected) throw new NullReferenceException("Null reference: This stream has already been closed!");
-                }
-                else
-                {
-                    throw new NullReferenceException("Null reference: The external connection has already been disposed!");
-                }
-            }
-            else
-            {
-                client.RecievePacket(packet);
-            }
         }
         public void WritePacket(Packet.Packet packet)
         {

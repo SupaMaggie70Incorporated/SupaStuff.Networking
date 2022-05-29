@@ -21,6 +21,7 @@ namespace SupaStuff.Net.Shared
         public bool isRunning = true;
         public bool sendingPacket = false;
         public Packet.Packet currentPacketToSend;
+        public Server.ClientConnection clientConnection = null;
         #region Packet buffer
         /*
         public bool packetHeaderComplete;
@@ -86,15 +87,7 @@ namespace SupaStuff.Net.Shared
                 if (reqLength == amountRead)
                 {
                     packet = FinishRecievePacket();
-                    if (OnRecievePacket != null)
-                    {
-                        bool stop = RecievePacketEvent(packet);
-                        if (!stop) HandleIncomingPacket(packet);
-                    }
-                    else
-                    {
-                        HandleIncomingPacket(packet);
-                    }
+                    packetsToHandle.Add(packet);
                     return true;
                 }
                 else
@@ -119,6 +112,10 @@ namespace SupaStuff.Net.Shared
         /// <param name="packet"></param>
         public void HandleIncomingPacket(Packet.Packet packet)
         {
+            if(!RecievePacketEvent(packet))
+            {
+                packet.Execute(clientConnection);
+            }
         }
         /// <summary>
         /// Finish recieving a packet
@@ -211,6 +208,11 @@ namespace SupaStuff.Net.Shared
             if(!sendingPacket && packetsToWrite.Count > 0)
             {
                 StartSendPacket();
+            }
+            Packet.Packet[] packets = packetsToHandle.ToArray();
+            foreach(Packet.Packet packet in packets)
+            {
+                HandleIncomingPacket(packet);
             }
         }
         /// <summary>

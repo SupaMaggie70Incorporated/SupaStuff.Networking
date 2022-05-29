@@ -19,7 +19,7 @@ namespace SupaStuff.Net.Server
         public List<ClientConnection> connections;
         public static void GetHost()
         {
-            var hosts = Dns.GetHostEntry(Dns.GetHostName());
+            var hosts = Dns.GetHostEntry(Dns.GetHostName());    
             foreach (var ip in hosts.AddressList)
             {
                 if (ip.AddressFamily == AddressFamily.InterNetwork)
@@ -32,14 +32,13 @@ namespace SupaStuff.Net.Server
         // Start is called before the first frame update
         public ServerHost()
         {
+            connections = new List<ClientConnection>(1024);
             localConnection = ClientConnection.LocalClient();
             GetHost();
             listener = new TcpListener(host, port);
+            Console.WriteLine(host.ToString() + ":" + port);
             listener.Start();
-            while (IsActive)
-            {
-                listener.BeginAcceptTcpClient(new System.AsyncCallback(ClientConnected), null);
-            }
+            listener.BeginAcceptTcpClient(new System.AsyncCallback(ClientConnected), null);
         }
 
         // Update is called once per frame
@@ -49,7 +48,9 @@ namespace SupaStuff.Net.Server
         }
         public void ClientConnected(System.IAsyncResult ar)
         {
-            new ClientConnection(ar);
+            new ClientConnection(listener.EndAcceptTcpClient(ar));
+            Console.WriteLine("Someone connected!");
+            listener.BeginAcceptTcpClient(new System.AsyncCallback(ClientConnected),null);
         }
         public void RecievePacket(ClientConnection player, Packet.Packet packet)
         {
