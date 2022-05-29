@@ -24,7 +24,7 @@ namespace SupaStuff.Net.Server
             tcpClient.NoDelay = false;
             stream = tcpClient.GetStream();
         }
-        private ClientConnection()
+        protected ClientConnection()
         {
             this.IsLocal = true;
             localClient = new Client.Client(this);
@@ -35,6 +35,11 @@ namespace SupaStuff.Net.Server
         }
         public delegate void OnMessage(Packet.Packet packet);
         public event OnMessage onMessage;
+        /// <summary>
+        /// Send a packet only if it's remote 
+        /// 
+        /// </summary>
+        /// <param name="packet"></param>
         public void SendPacket(Packet.Packet packet)
         {
             if (!IsLocal)
