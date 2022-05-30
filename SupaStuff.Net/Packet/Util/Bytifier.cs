@@ -6,9 +6,6 @@ using System.Threading.Tasks;
 using System.Reflection;
 using System.Linq.Expressions;
 using System.Diagnostics;
-using SupaStuff.Core.Util;
-
-
 namespace SupaStuff.Net.Packet.Util
 {
 
@@ -16,6 +13,7 @@ namespace SupaStuff.Net.Packet.Util
     {
         private static Dictionary<Type, Func<object, byte[]>> bytifyFunctions = new Dictionary<Type, Func<object, byte[]>>();
         private static Dictionary<Type, Func<byte[], object>> debytifyFunctions = new Dictionary<Type, Func<byte[], object>>();
+        public static int timesPrinted = 0;
         /// <summary>
         /// Finds the packets out there, collects them and their functions, and adds them to lists
         /// </summary>
@@ -26,24 +24,31 @@ namespace SupaStuff.Net.Packet.Util
             int numB2O = 0;
             foreach (MethodInfo method in methods)
             {
-                AConvert convert = method.GetCustomAttribute<AConvert>();
-                if (convert != null)
+                if (method != null)
                 {
-                    if (method.GetParameters().Length != 1)
+                    if(timesPrinted < 5)
                     {
-                        continue;
+                        Console.WriteLine("Function method: " + method.Name);
+                        timesPrinted++;
                     }
-                    if (convert.b2o)
-                    {
-                        numB2O++;
-                        debytifyFunctions[method.ReturnType] = (byte[] bytes) => method.Invoke(null, new object[] { bytes });
-                    }
-                    else
-                    {
-                        numO2B++;
-                        ParameterInfo parameter = method.GetParameters()[0];
-                        bytifyFunctions[parameter.ParameterType] = (object instance) => method.Invoke(instance, new object[] { }) as byte[];
-                    }
+                }
+                else continue;
+                AConvert convert = method.GetCustomAttribute<AConvert>();
+                if (convert == null) continue;
+                if (method.GetParameters().Length != 1)
+                {
+                    continue;
+                }
+                if (convert.b2o)
+                {
+                    numB2O++;
+                    debytifyFunctions[method.ReturnType] = (byte[] bytes) => method.Invoke(null, new object[] { bytes });
+                }
+                else
+                {
+                    numO2B++;
+                    ParameterInfo parameter = method.GetParameters()[0];
+                    bytifyFunctions[parameter.ParameterType] = (object instance) => method.Invoke(instance, new object[] { }) as byte[];
                 }
             }
             Type[] types = TypeFinder.GetTypes();

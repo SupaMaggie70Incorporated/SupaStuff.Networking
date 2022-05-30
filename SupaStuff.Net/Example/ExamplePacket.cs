@@ -8,16 +8,16 @@ using SupaStuff.Net.Server;
 
 namespace SupaStuff.Net.Example
 {
-    [APacket(0 , false)]
+    [APacket(1 , false)]
     public class ExamplePacket : Packet.Packet
     {
         public override void Execute(ClientConnection sender)
         {
             return;
         }
-        public byte[] bytify()
+        public override byte[] Bytify()
         {
-            return new byte[0];
+            return new byte[2];
         }
         public ExamplePacket(byte[] bytes) : base(bytes)
         {

@@ -36,6 +36,7 @@ namespace SupaStuff.Net.Packet.Util
                         ConstructorInfo constructorInfo = type.GetConstructor(new Type[] { typeof(byte[]) });
                         Func<byte[], Packet> func = (byte[] bytes) => constructorInfo.Invoke(new object[] { bytes }) as Packet;
                         s2cConstructors.Add(property.PacketID, func);
+                        Console.WriteLine("Added new s2c constructor for " + type.FullName);
                     }
                     else
                     {
@@ -47,6 +48,7 @@ namespace SupaStuff.Net.Packet.Util
                         ConstructorInfo constructorInfo = type.GetConstructor(new Type[] { typeof(byte[]) });
                         Func<byte[], Packet> func = (byte[] bytes) => constructorInfo.Invoke(new object[] { bytes }) as Packet;
                         c2sConstructors.Add(property.PacketID, func);
+                        Console.WriteLine("Added new c2s constructor for " + type.FullName);
                     }
                 }
             }

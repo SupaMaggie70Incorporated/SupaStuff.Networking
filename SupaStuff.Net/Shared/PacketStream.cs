@@ -23,15 +23,6 @@ namespace SupaStuff.Net.Shared
         public Packet.Packet currentPacketToSend;
         public Server.ClientConnection clientConnection = null;
         #region Packet buffer
-        /*
-        public bool packetHeaderComplete;
-        public byte[] packetHeader;
-        public int packetHeaderIndex;
-        public int packetSize;
-        public int packetID;
-        public byte[] packetBody;
-        public int packetBodyIndex;
-        */
 
         public bool packetHeaderComplete = false;
         public byte[] packetHeader = new byte[12];
@@ -65,45 +56,58 @@ namespace SupaStuff.Net.Shared
             {
                 return false;
             }
-            try
+            if (!packetHeaderComplete)
             {
-                if (!packetHeaderComplete)
+                int headerReqLength = 8 - packetBodyIndex;
+                int headerAmountRead = stream.Read(packetHeader,packetBodyIndex, headerReqLength);
+                if (headerAmountRead == headerReqLength)
                 {
-                    int headerReqLength = 12 - packetBodyIndex;
-                    int headerAmountRead = stream.Read(packetHeader, packetBodyIndex, headerReqLength);
-                    if (headerAmountRead == headerReqLength)
-                    {
-                        packetID = BitConverter.ToInt32(packetHeader, 0);
-                        packetSize = BitConverter.ToInt32(packetHeader, 4);
-                        packetHeaderComplete = true;
-                    }
-                    else
-                    {
-                        return false;
-                    }
-                }
-                int reqLength = packetSize - packetBodyIndex + 12;
-                int amountRead = stream.Read(packetBody, packetBodyIndex - 12, reqLength);
-                if (reqLength == amountRead)
-                {
-                    packet = FinishRecievePacket();
-                    packetsToHandle.Add(packet);
-                    return true;
+                    Console.WriteLine("Completed header");
+                    packetID = BitConverter.ToInt32(packetHeader, 0);
+                    packetSize = BitConverter.ToInt32(packetHeader, 4);
+                    packetHeaderComplete = true;
+                    packetBody = new byte[packetSize];
+                    Console.WriteLine("Header id: " + packetID + ", size: " + packetSize);
+                    packetBodyIndex = 0;
                 }
                 else
                 {
-                    packetBodyIndex += amountRead;
+                    Console.WriteLine("Unable to complete header: " + headerReqLength + " : " + headerAmountRead);
+                    packetBodyIndex += headerAmountRead;
                     return false;
                 }
             }
-            catch (Exception e)
+            if(packetSize == 0)
             {
-#if UNITY_EDITOR
-            Squirrelgame.MainLogger.error(e.StackTrace);
-#endif
-                PacketCleanup();
-                onError();
+                Console.WriteLine("Completed packet body");
+                packet = FinishRecievePacket();
+                return true;
+            }
+            int reqLength = packetSize - packetBodyIndex;
+            int amountRead = stream.Read(packetBody, packetBodyIndex, reqLength);
+            if (reqLength == amountRead)
+            {
+                Console.WriteLine("Completed packet body");
+                packet = FinishRecievePacket();
+                return true;
+            }
+            else
+            {
+                Console.WriteLine("Unable to complete body: " + reqLength + " : " + amountRead);
+                packetBodyIndex += amountRead;
                 return false;
+            }
+        }
+        public void CheckForPackets()
+        {
+            while (true)
+            {
+                Packet.Packet packet = null;
+                if (TryGetPacket(out packet))
+                {
+                    packetsToHandle.Add(packet);
+                }
+                else break;
             }
         }
         /// <summary>
@@ -112,9 +116,16 @@ namespace SupaStuff.Net.Shared
         /// <param name="packet"></param>
         public void HandleIncomingPacket(Packet.Packet packet)
         {
-            if(!RecievePacketEvent(packet))
+            try
             {
-                packet.Execute(clientConnection);
+                if (!RecievePacketEvent(packet))
+                {
+                    packet.Execute(clientConnection);
+                }
+            }
+            catch
+            {
+                if (this != null) Dispose();
             }
         }
         /// <summary>
@@ -167,9 +178,11 @@ namespace SupaStuff.Net.Shared
         public void StartSendPacket()
         {
             sendingPacket = true;
-            byte[] bytes = Packet.Packet.EncodePacket(packetsToWrite[0]);
-            stream.BeginWrite(bytes,0,bytes.Length,new AsyncCallback(EndSendPacket),null);
+            Packet.Packet packet = packetsToWrite[0];
             packetsToWrite.RemoveAt(0);
+            Console.WriteLine("Started sending packet");
+            byte[] bytes = Packet.Packet.EncodePacket(packet);
+            stream.BeginWrite(bytes,0,bytes.Length,new AsyncCallback(EndSendPacket),null);
         }
 
         /// <summary>
@@ -178,6 +191,7 @@ namespace SupaStuff.Net.Shared
         /// <param name="ar"></param>
         public void EndSendPacket(IAsyncResult ar)
         {
+            Console.WriteLine("Finished sending packet");
             stream.EndWrite(ar);
             if (packetsToWrite.Count > 0)
             {
@@ -187,6 +201,7 @@ namespace SupaStuff.Net.Shared
             {
                 sendingPacket = false;
             }
+
         }
 
         /// <summary>
@@ -195,16 +210,20 @@ namespace SupaStuff.Net.Shared
         public void Update()
         {
             long time = DateTime.UtcNow.Ticks;
+            /*
             for (int i = 0; i < packetsToWrite.Count; i++)
             {
                 Packet.Packet packet = packetsToWrite[i];
                 long ticks = packet.startTime.Ticks;
                 if (time - ticks > packet.getMaxTime())
                 {
-                    i--;
+                    Console.WriteLine("Removing a packet from the queue bc its too old :(");
                     packetsToWrite.RemoveAt(i);
+                    i--;
                 }
             }
+            */
+            CheckForPackets();
             if(!sendingPacket && packetsToWrite.Count > 0)
             {
                 StartSendPacket();
@@ -230,7 +249,6 @@ namespace SupaStuff.Net.Shared
         {
             if (packetsToWrite.Count + 1 == packetsToWrite.Capacity)
             {
-                Main.NetLogger.error("Nonfatal error: too many packets queued. Connection was too slow.");
                 onError();
                 Dispose();
             }
@@ -249,6 +267,7 @@ namespace SupaStuff.Net.Shared
         public event _OnRecievePacket OnRecievePacket;
         public bool RecievePacketEvent(Packet.Packet packet)
         {
+            Console.WriteLine("Recieved a packet");
             _OnRecievePacket[] methods = (_OnRecievePacket[])OnRecievePacket.GetInvocationList();
             bool shouldReturn = false;
             foreach(_OnRecievePacket method in methods)

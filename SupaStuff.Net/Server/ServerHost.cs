@@ -42,15 +42,34 @@ namespace SupaStuff.Net.Server
         }
 
         // Update is called once per frame
-        void Update()
+        public void Update()
         {
-
+            for(int i = 0;i < connections.Count;i++)
+            {
+                ClientConnection connection = connections[i];
+                if(connection == null)
+                {
+                    i--;
+                    connections.RemoveAt(i);
+                }
+                connection.Update();
+            }
         }
         public void ClientConnected(System.IAsyncResult ar)
         {
-            new ClientConnection(listener.EndAcceptTcpClient(ar));
-            Console.WriteLine("Someone connected!");
-            listener.BeginAcceptTcpClient(new System.AsyncCallback(ClientConnected),null);
+            try
+            {
+                ClientConnection connection = new ClientConnection(listener.EndAcceptTcpClient(ar));
+                connections.Add(connection);
+                Console.WriteLine("Someone connected!");
+                listener.BeginAcceptTcpClient(new System.AsyncCallback(ClientConnected), null);
+            }catch
+            {
+                if(this != null)
+                {
+                    Dispose();
+                }
+            }
         }
         public void RecievePacket(ClientConnection player, Packet.Packet packet)
         {
@@ -61,7 +80,14 @@ namespace SupaStuff.Net.Server
         {
             foreach (var connection in connections)
             {
-                connection.Dispose();
+                try
+                {
+                    connection.Dispose();
+                }
+                catch
+                {
+
+                }
             }
             listener.Stop();
             Instance = null;

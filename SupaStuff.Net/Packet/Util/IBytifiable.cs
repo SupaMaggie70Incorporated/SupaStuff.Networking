@@ -11,7 +11,7 @@ namespace SupaStuff.Net.Packet.Util
     /// </summary>
     public abstract class IBytifiable
     {
-        public byte[] Bytify()
+        public virtual byte[] Bytify()
         {
             return Bytifier.Bytify(this);
         }

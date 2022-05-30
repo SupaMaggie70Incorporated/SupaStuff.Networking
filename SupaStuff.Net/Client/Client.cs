@@ -62,12 +62,13 @@ namespace SupaStuff.Net.Client
         /// <summary>
         /// Try to recieve and write packets
         /// </summary>
-        public void OnUpdate()
+        public void Update()
         {
             if (!IsLocal)
             {
                 packetStream.Update();
             }
+            if(!tcpClient.Connected) Dispose();
         }
         public delegate void OnMessage(Packet.Packet packet);
         public event OnMessage onMessage;
@@ -76,11 +77,16 @@ namespace SupaStuff.Net.Client
         /// </summary>
         public void Dispose()
         {
+            Console.WriteLine("Client closing");
             Instance = null;
             stream.Close();
             stream.Dispose();
             tcpClient.Close();
             tcpClient.Dispose();
+        }
+        public void SendExamplePacket()
+        {
+            SendPacket(new Example.ExamplePacket());
         }
     }
 }

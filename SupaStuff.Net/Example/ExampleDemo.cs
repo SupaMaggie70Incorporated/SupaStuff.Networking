@@ -12,6 +12,9 @@ namespace SupaStuff.Net.Example
 {
     public class ExampleDemo
     {
+        public bool isRunning = true;
+        public ServerHost testServer;
+        public Client.Client client;
         /// <summary>
         /// Example of how to use SupaStuff.Net
         /// 
@@ -29,22 +32,41 @@ namespace SupaStuff.Net.Example
         {
             Console.WriteLine("Initiating Scarry Black Window...");
             
-            ServerHost testServer = new Server.ServerHost();
+            testServer = new Server.ServerHost();
             Console.WriteLine("Starting Server at\n     " + ServerHost.host.ToString() + ":" + ServerHost.port);
 
             
             Console.ReadKey();
 
-            Client.Client client = new Client.Client(ServerHost.host);
+            client = new Client.Client(ServerHost.host);
             Console.WriteLine("Client Started");
+
+            Task task = new Task(updateLoop);
+            task.Start();
+
+            client.SendExamplePacket();
 
             Console.ReadKey();
 
             Console.WriteLine("Closing Server...");
             testServer.Dispose();
+            isRunning = false;
+
+
+            Console.ReadKey();
+
 
             Console.WriteLine("Completed Successfully");
 
+        }
+        public void updateLoop()
+        {
+            while(isRunning)
+            {
+                client.Update();
+                testServer.Update();
+                Task.Delay(50);
+            }
         }
 
         
