@@ -3,11 +3,12 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
+using System.Threading;
 using SupaStuff.Core;
 using SupaStuff.Core.Util;
 using System.Net;
 using System.Net.Sockets;
-using SupaStuff.Net.Packet;
+using SupaStuff.Net.Packets;
 namespace SupaStuff.Net.Shared
 {
     public class PacketStream : IDisposable
@@ -15,12 +16,12 @@ namespace SupaStuff.Net.Shared
         public NetworkStream stream;
         public bool isServer;
         public Func<bool> customOnError;
-        public List<Packet.Packet> packetsToWrite = new List<Packet.Packet>(1024);
-        public List<Packet.Packet> packetsToHandle = new List<Packet.Packet>(1024);
+        public List<Packet> packetsToWrite = new List<Packet>(1024);
+        public List<Packet> packetsToHandle = new List<Packet>(1024);
         public Task currentTask = null;
         public bool isRunning = true;
         public bool sendingPacket = false;
-        public Packet.Packet currentPacketToSend;
+        public Packet currentPacketToSend;
         public Server.ClientConnection clientConnection = null;
         #region Packet buffer
 
@@ -49,7 +50,7 @@ namespace SupaStuff.Net.Shared
         /// </summary>
         /// <param name="packet"></param>
         /// <returns></returns>
-        public bool TryGetPacket(out Packet.Packet packet)
+        public bool TryGetPacket(out Packet packet)
         {
             packet = null;
             try
@@ -99,11 +100,14 @@ namespace SupaStuff.Net.Shared
                 return false;
             }
         }
+        /// <summary>
+        /// Check to see if any packets can be fully read
+        /// </summary>
         public void CheckForPackets()
         {
             while (true)
             {
-                Packet.Packet packet = null;
+                Packet packet = null;
                 if (TryGetPacket(out packet))
                 {
                     packetsToHandle.Add(packet);
@@ -115,7 +119,7 @@ namespace SupaStuff.Net.Shared
         /// Called when a packet is recieved, to execute the packet's code and whatnot
         /// </summary>
         /// <param name="packet"></param>
-        public void HandleIncomingPacket(Packet.Packet packet)
+        public void HandleIncomingPacket(Packet packet)
         {
             packetsToHandle.Remove(packet);
             try
@@ -134,9 +138,9 @@ namespace SupaStuff.Net.Shared
         /// Finish recieving a packet
         /// </summary>
         /// <returns></returns>
-        public Packet.Packet FinishRecievePacket()
+        public Packet FinishRecievePacket()
         {
-            Packet.Packet packet = Packet.Packet.GetPacket(packetID, packetBody, !isServer);
+            Packet packet = Packet.GetPacket(packetID, packetBody, !isServer);
             PacketCleanup();
             return packet;
 
@@ -179,27 +183,48 @@ namespace SupaStuff.Net.Shared
         /// </summary>
         public void StartSendPacket()
         {
-            sendingPacket = true;
-            Packet.Packet packet = packetsToWrite[0];
-            packetsToWrite.RemoveAt(0);
-            byte[] bytes = Packet.Packet.EncodePacket(packet);
-            stream.BeginWrite(bytes,0,bytes.Length,new AsyncCallback(EndSendPacket),null);
+            try
+            {
+                lock (packetsToWrite)
+                {
+                    sendingPacket = true;
+                    Packet packet = packetsToWrite[0];
+                    packetsToWrite.RemoveAt(0);
+                    byte[] bytes = Packet.EncodePacket(packet);
+                    stream.BeginWrite(bytes, 0, bytes.Length, new AsyncCallback(EndSendPacket), null);
+                }
+            }catch
+            {
+                Console.WriteLine("Error :(");
+                onError();
+                Dispose();
+            }
         }
-
         /// <summary>
         ///  Finish sending queue of packets, or keep going, up to you.
         /// </summary>
         /// <param name="ar"></param>
         public void EndSendPacket(IAsyncResult ar)
         {
-            stream.EndWrite(ar);
-            if (packetsToWrite.Count > 0)
+            try
             {
-                StartSendPacket();
-            }
-            else
+                lock (packetsToWrite)
+                {
+                    stream.EndWrite(ar);
+                    if (packetsToWrite.Count > 0)
+                    {
+                        StartSendPacket();
+                    }
+                    else
+                    {
+                        sendingPacket = false;
+                    }
+                }
+            }catch
             {
-                sendingPacket = false;
+                Console.WriteLine("Error :(");
+                onError();
+                Dispose();
             }
 
         }
@@ -210,26 +235,30 @@ namespace SupaStuff.Net.Shared
         public void Update()
         {
             long time = DateTime.UtcNow.Ticks;
-            /*
+            //Remove old packets
             for (int i = 0; i < packetsToWrite.Count; i++)
             {
-                Packet.Packet packet = packetsToWrite[i];
+                Packet packet = packetsToWrite[i];
                 long ticks = packet.startTime.Ticks;
                 if (time - ticks > packet.getMaxTime())
                 {
-                    Console.WriteLine("Removing a packet from the queue bc its too old :(");
                     packetsToWrite.RemoveAt(i);
                     i--;
                 }
             }
-            */
+            
+            //Check for new packets to recieve
             CheckForPackets();
+
+            //Start sending a packet if you can
             if(!sendingPacket && packetsToWrite.Count > 0)
             {
                 StartSendPacket();
             }
-            Packet.Packet[] packets = packetsToHandle.ToArray();
-            foreach(Packet.Packet packet in packets)
+
+            //Handle incoming packets
+            Packet[] packets = packetsToHandle.ToArray();
+            foreach(Packet packet in packets)
             {
                 HandleIncomingPacket(packet);
             }
@@ -246,27 +275,40 @@ namespace SupaStuff.Net.Shared
         /// Add the packet to the queue, to be sent when its ready
         /// </summary>
         /// <param name="packet"></param>
-        public void SendPacket(Packet.Packet packet)
+        public void SendPacket(Packet packet)
         {
             if (packetsToWrite.Count + 1 == packetsToWrite.Capacity)
             {
+                //To many packets in queue!
                 onError();
-                Dispose();
+                try
+                {
+                    Dispose();
+                } catch
+                {
+
+                }
             }
-            packet.startTime = DateTime.UtcNow;
-            packetsToWrite.Add(packet);
+            try
+            {
+                packet.startTime = DateTime.UtcNow;
+                packetsToWrite.Add(packet);
+            }catch
+            {
+
+            }
         }
         /// <summary>
         /// Delegate function for when you recieve a packet
         /// </summary>
         /// <param name="packet"></param>
         /// <returns></returns>
-        public delegate bool _OnRecievePacket(Packet.Packet packet);
+        public delegate bool _OnRecievePacket(Packet packet);
         /// <summary>
         /// Called when a packet is recieved
         /// </summary>
         public event _OnRecievePacket OnRecievePacket;
-        public bool RecievePacketEvent(Packet.Packet packet)
+        public bool RecievePacketEvent(Packet packet)
         {
             if (OnRecievePacket == null) return false;
             _OnRecievePacket[] methods = (_OnRecievePacket[])OnRecievePacket.GetInvocationList();

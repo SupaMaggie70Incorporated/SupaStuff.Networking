@@ -5,7 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Net;
 using System.Net.Sockets;
-using System.Security;
+
+using SupaStuff.Net.Packets;
 namespace SupaStuff.Net.Server
 {
     public class ServerHost : IDisposable
@@ -71,7 +72,7 @@ namespace SupaStuff.Net.Server
                 }
             }
         }
-        public void RecievePacket(ClientConnection player, Packet.Packet packet)
+        public void RecievePacket(ClientConnection player, Packet packet)
         {
             packet.Execute(player);
 

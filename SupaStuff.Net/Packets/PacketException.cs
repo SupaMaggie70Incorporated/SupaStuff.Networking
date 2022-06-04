@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SupaStuff.Net.Packet
+namespace SupaStuff.Net.Packets
 {
     public class PacketException : Exception
     {

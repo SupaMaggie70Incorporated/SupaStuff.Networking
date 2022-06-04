@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System;
 using System.Reflection;
 using SupaStuff.Core.Util;
-namespace SupaStuff.Net.Packet.Util
+namespace SupaStuff.Net.Packets.Util
 {
     public static class PacketTypesFinder
     {

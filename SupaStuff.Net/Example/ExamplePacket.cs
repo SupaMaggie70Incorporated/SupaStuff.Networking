@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using SupaStuff.Net.Packet;
+using SupaStuff.Net.Packets;
 using SupaStuff.Net.Server;
 
 namespace SupaStuff.Net.Example
 {
     [APacket(1 , false)]
-    public class ExamplePacket : Packet.Packet
+    public class ExamplePacket : Packet
     {
         public short num;
         public override void Execute(ClientConnection sender)

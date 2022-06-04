@@ -6,7 +6,7 @@ using System.Threading.Tasks;
 using System.Reflection;
 using System.Linq.Expressions;
 using System.Diagnostics;
-namespace SupaStuff.Net.Packet.Util
+namespace SupaStuff.Net.Packets.Util
 {
 
     public static class Bytifier

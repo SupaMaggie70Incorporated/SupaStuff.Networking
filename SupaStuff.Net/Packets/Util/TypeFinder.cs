@@ -7,8 +7,7 @@ using System.Reflection;
 
 
 
-
-namespace SupaStuff.Net.Packet.Util
+namespace SupaStuff.Net.Packets.Util
 {
     public static class TypeFinder
     {

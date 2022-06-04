@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 
-namespace SupaStuff.Net.Packet.Util
+namespace SupaStuff.Net.Packets.Util
 {
     /// <summary>
     /// The abstract class for bytifiable objects, such as packets, to ease the coding difficulty

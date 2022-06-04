@@ -3,7 +3,7 @@ using System.Collections.Generic;
 using System;
 using System.Reflection;
 
-namespace SupaStuff.Net.Packet
+namespace SupaStuff.Net.Packets
 {
     /// <summary>
     /// The attribute applied to packets to be found in PacketTypesFinder

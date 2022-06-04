@@ -3,13 +3,13 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using SupaStuff.Net.Packet;
+using SupaStuff.Net.Packets;
 using SupaStuff.Net.Server;
 
 namespace SupaStuff.Net.Example
 {
     [APacket(2,true)]
-    public class ExamplePacket2 : Packet.Packet
+    public class ExamplePacket2 : Packet
     {
         public override byte[] Bytify()
         {

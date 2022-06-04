@@ -3,11 +3,11 @@ using System.Collections.Generic;
 using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
-using SupaStuff.Net.Packet.Util;
+using SupaStuff.Net.Packets.Util;
 using System.Reflection;
 using SupaStuff.Net.Client;
 using SupaStuff.Net.Server;
-namespace SupaStuff.Net.Packet
+namespace SupaStuff.Net.Packets
 {//this is where we make errors
     public abstract class Packet : IBytifiable, IDisposable
     {
