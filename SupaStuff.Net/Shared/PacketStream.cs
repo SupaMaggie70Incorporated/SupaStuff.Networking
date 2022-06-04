@@ -13,36 +13,31 @@ namespace SupaStuff.Net.Shared
 {
     public class PacketStream : IDisposable
     {
-        public NetworkStream stream;
         public bool isServer;
-        public Func<bool> customOnError;
-        public List<Packet> packetsToWrite = new List<Packet>(1024);
-        public List<Packet> packetsToHandle = new List<Packet>(1024);
-        public Task currentTask = null;
         public bool isRunning = true;
-        public bool sendingPacket = false;
-        public Packet currentPacketToSend;
         public Server.ClientConnection clientConnection = null;
+        private NetworkStream stream;
+        private Func<bool> customOnError;
+        private List<Packet> packetsToWrite = new List<Packet>(1024);
+        private List<Packet> packetsToHandle = new List<Packet>(1024);
+        private bool sendingPacket = false;
         #region Packet buffer
 
-        public bool packetHeaderComplete = false;
-        public byte[] packetHeader = new byte[8];
-        public int packetID = -1;
-        public int packetSize = -1;
-        public byte[] packetBody = null;
-        public int packetBodyIndex = 0;
+        bool packetHeaderComplete = false;
+        byte[] packetHeader = new byte[8];
+        int packetID = -1;
+        int packetSize = -1;
+        byte[] packetBody = null;
+        int packetBodyIndex = 0;
         #endregion
         /// <summary>
         /// Called when an error occurs
         /// </summary>
-        public void onError()
+        private void onError()
         {
             isRunning = customOnError();
             if (!isRunning)
-            {
-                if (currentTask != null)
-                {
-                }
+            { 
             }
         }
         /// <summary>
@@ -50,7 +45,7 @@ namespace SupaStuff.Net.Shared
         /// </summary>
         /// <param name="packet"></param>
         /// <returns></returns>
-        public bool TryGetPacket(out Packet packet)
+        private bool TryGetPacket(out Packet packet)
         {
             packet = null;
             try
@@ -103,7 +98,7 @@ namespace SupaStuff.Net.Shared
         /// <summary>
         /// Check to see if any packets can be fully read
         /// </summary>
-        public void CheckForPackets()
+        private void CheckForPackets()
         {
             while (true)
             {
@@ -138,7 +133,7 @@ namespace SupaStuff.Net.Shared
         /// Finish recieving a packet
         /// </summary>
         /// <returns></returns>
-        public Packet FinishRecievePacket()
+        private Packet FinishRecievePacket()
         {
             Packet packet = Packet.GetPacket(packetID, packetBody, !isServer);
             PacketCleanup();
@@ -148,7 +143,7 @@ namespace SupaStuff.Net.Shared
         /// <summary>
         /// Cleans up variables after a packet is recieved
         /// </summary>
-        public void PacketCleanup()
+        private void PacketCleanup()
         {
             packetID = -1;
             packetBody = null;
@@ -157,14 +152,6 @@ namespace SupaStuff.Net.Shared
             packetSize = -1;
             packetHeaderComplete = false;
 
-        }
-        /// <summary>
-        /// Whether or not a packet is ready to be recieved
-        /// </summary>
-        /// <returns></returns>
-        public bool PacketAvailable()
-        {
-            return stream.DataAvailable;
         }
         /// <summary>
         /// The main constructor
@@ -181,7 +168,7 @@ namespace SupaStuff.Net.Shared
         /// <summary>
         /// Begin asynchronous sending of packet queue
         /// </summary>
-        public void StartSendPacket()
+        private void StartSendPacket()
         {
             try
             {
@@ -204,7 +191,7 @@ namespace SupaStuff.Net.Shared
         ///  Finish sending queue of packets, or keep going, up to you.
         /// </summary>
         /// <param name="ar"></param>
-        public void EndSendPacket(IAsyncResult ar)
+        private void EndSendPacket(IAsyncResult ar)
         {
             try
             {
@@ -308,7 +295,7 @@ namespace SupaStuff.Net.Shared
         /// Called when a packet is recieved
         /// </summary>
         public event _OnRecievePacket OnRecievePacket;
-        public bool RecievePacketEvent(Packet packet)
+        private bool RecievePacketEvent(Packet packet)
         {
             if (OnRecievePacket == null) return false;
             _OnRecievePacket[] methods = (_OnRecievePacket[])OnRecievePacket.GetInvocationList();

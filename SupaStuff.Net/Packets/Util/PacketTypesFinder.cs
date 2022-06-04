@@ -5,7 +5,7 @@ using System.Reflection;
 using SupaStuff.Core.Util;
 namespace SupaStuff.Net.Packets.Util
 {
-    public static class PacketTypesFinder
+    internal static class PacketTypesFinder
     {
         public static Dictionary<int, Type> c2stypes;
         public static Dictionary<int, Type> s2ctypes;
@@ -20,7 +20,7 @@ namespace SupaStuff.Net.Packets.Util
             s2ctypes = new Dictionary<int, Type>();
             c2sConstructors = new Dictionary<int, Func<byte[], Packet>>();
             s2cConstructors = new Dictionary<int, Func<byte[], Packet>>();
-            Type[] types =  TypeFinder.GetTypes();
+            Type[] types =  TypeFinder.ReGetTypes();
             foreach (Type type in types)
             {
                 APacket property = type.GetCustomAttribute<APacket>();

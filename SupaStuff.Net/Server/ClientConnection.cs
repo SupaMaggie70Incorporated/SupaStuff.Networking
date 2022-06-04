@@ -39,7 +39,7 @@ namespace SupaStuff.Net.Server
         }
         public static ClientConnection LocalClient()
         {
-            return new ClientConnection();
+            return LocalClientConnection.LocalClient();
         }
         public delegate void OnMessage(Packet packet);
         public event OnMessage onMessage;
@@ -62,15 +62,6 @@ namespace SupaStuff.Net.Server
         /// <param name="message">
         /// The message to be sent
         /// </param>
-        public void Kick(string message)
-        {
-            //SendPacket(new KickFromServerPacket(message));
-            Dispose();
-        }
-        public void Kick()
-        {
-            Kick("Kicked from server!");
-        }
         public void Dispose()
         {
             Console.WriteLine("Closing Server to Client connection");

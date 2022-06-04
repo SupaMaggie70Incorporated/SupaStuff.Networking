@@ -19,11 +19,13 @@ namespace SupaStuff.Net.Client
         public bool IsLocal;
         public ClientConnection localConnection;
         public PacketStream packetStream;
-        // Start is called before the first frame update
+        /// <summary>
+        /// Create a client and attempt to connect to server
+        /// </summary>
+        /// <param name="ip"></param>
         public Client(IPAddress ip)
         {
             //External client
-
             IsLocal = false;
             Instance = this;
             //Server script will calculate the local IP stuff for us
@@ -45,6 +47,10 @@ namespace SupaStuff.Net.Client
             packetStream = new PacketStream(stream, false, () => false);
 
         }
+        /// <summary>
+        /// Create a local client connection
+        /// </summary>
+        /// <param name="localconnection"></param>
         public Client(ClientConnection localconnection)
         {
             //Local client
@@ -85,10 +91,6 @@ namespace SupaStuff.Net.Client
             stream.Dispose();
             tcpClient.Close();
             tcpClient.Dispose();
-        }
-        public void SendExamplePacket()
-        {
-            SendPacket(new Example.ExamplePacket(129));
         }
     }
 }

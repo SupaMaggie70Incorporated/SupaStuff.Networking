@@ -54,8 +54,9 @@ namespace SupaStuff.Net.Packets
                 }
                 packet = func(packetbytes);
             }
-            catch (Exception ex)
+            catch
             {
+
             }
             if (packet == null)
             {

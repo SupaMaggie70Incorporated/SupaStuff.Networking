@@ -6,7 +6,7 @@ using System.Reflection;
 namespace SupaStuff.Net.Packets
 {
     /// <summary>
-    /// The attribute applied to packets to be found in PacketTypesFinder
+    /// The attribute applied to packets
     /// </summary>
     [AttributeUsage(AttributeTargets.Class, AllowMultiple = true, Inherited = false)]
     public class APacket : Attribute

@@ -47,8 +47,8 @@ namespace SupaStuff.Net.Example
             Task task = new Task(updateLoop);
             task.Start();
 
-            client.SendExamplePacket();
-            client.SendExamplePacket();
+            client.SendPacket(new ExamplePacket(129));
+            client.SendPacket(new ExamplePacket(129));
 
             Console.ReadKey();
 
