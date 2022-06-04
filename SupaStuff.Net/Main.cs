@@ -13,8 +13,8 @@ namespace SupaStuff.Net
         public static void Init()
         {
             //NetLogger = Logger.GetLogger("SupaStuff.Net");
-            Packet.Util.Bytifier.Init();
-            Packet.Util.PacketTypesFinder.GetTypes();
+            Packets.Util.Bytifier.Init();
+            Packets.Util.PacketTypesFinder.GetTypes();
             Server.ServerHost.GetHost();
         }
     }

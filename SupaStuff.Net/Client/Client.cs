@@ -7,6 +7,8 @@ using System.Net.Sockets;
 using System.Net;
 using SupaStuff.Net.Server;
 using SupaStuff.Net.Shared;
+using SupaStuff.Net.Packets;
+
 namespace SupaStuff.Net.Client
 {
     public class Client : IDisposable
@@ -55,7 +57,7 @@ namespace SupaStuff.Net.Client
         /// Send a packet over the stream
         /// </summary>
         /// <param name="packet"></param>
-        public void SendPacket(Packet.Packet packet)
+        public void SendPacket(Packet packet)
         {
             packetStream.SendPacket(packet);
         }
@@ -70,7 +72,7 @@ namespace SupaStuff.Net.Client
             }
             if(!tcpClient.Connected) Dispose();
         }
-        public delegate void OnMessage(Packet.Packet packet);
+        public delegate void OnMessage(Packet packet);
         public event OnMessage onMessage;
         /// <summary>
         /// GC assister

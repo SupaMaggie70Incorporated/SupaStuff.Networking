@@ -7,7 +7,10 @@
 
   <ItemGroup>
     <Reference Include="SupaStuff.Core">
-      <HintPath>..\..\..\..\..\Downloads\Core.dll</HintPath>
+      <HintPath>..\Core.dll</HintPath>
+    </Reference>
+    <Reference Include="SupaStuff.Core">
+      <HintPath>..\Core.dll</HintPath>
     </Reference>
   </ItemGroup>
 
