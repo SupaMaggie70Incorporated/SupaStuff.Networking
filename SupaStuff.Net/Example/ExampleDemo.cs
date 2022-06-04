@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using SupaStuff.Net;
-using SupaStuff.Net.Server;
+using SupaStuff.Net.ServerSide;
 
 
 
@@ -13,8 +13,8 @@ namespace SupaStuff.Net.Example
     public class ExampleDemo
     {
         public bool isRunning = true;
-        public ServerHost testServer;
-        public Client.Client client;
+        public Server testServer;
+        public ClientSide.Client client;
         /// <summary>
         /// Example of how to use SupaStuff.Net
         /// 
@@ -32,16 +32,16 @@ namespace SupaStuff.Net.Example
         {
             Console.WriteLine("Initiating Scarry Black Window...");
             
-            testServer = new Server.ServerHost();
+            testServer = new ServerSide.Server();
             testServer.OnClientConnected += (ClientConnection conn) => {
                 conn.SendPacket(new ExamplePacket2());
             };
-            Console.WriteLine("Starting Server at\n     " + ServerHost.host.ToString() + ":" + ServerHost.port);
+            Console.WriteLine("Starting Server at\n     " + Server.host.ToString() + ":" + Server.port);
 
             
             Console.ReadKey();
 
-            client = new Client.Client(ServerHost.host);
+            client = new ClientSide.Client(Server.host);
             Console.WriteLine("Client Started");
 
             Task task = new Task(updateLoop);

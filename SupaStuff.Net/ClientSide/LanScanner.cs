@@ -5,7 +5,7 @@ using System.Net.Sockets;
 using System.Linq;
 using System.Text;
 using System.Net.NetworkInformation;
-namespace SupaStuff.Net.Client
+namespace SupaStuff.Net.ClientSide
 {
     public static class LanScan
     {

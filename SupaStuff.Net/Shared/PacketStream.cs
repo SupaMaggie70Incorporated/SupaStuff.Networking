@@ -15,7 +15,7 @@ namespace SupaStuff.Net.Shared
     {
         public bool isServer;
         public bool isRunning = true;
-        public Server.ClientConnection clientConnection = null;
+        public ServerSide.ClientConnection clientConnection = null;
         private NetworkStream stream;
         private Func<bool> customOnError;
         private List<Packet> packetsToWrite = new List<Packet>(1024);

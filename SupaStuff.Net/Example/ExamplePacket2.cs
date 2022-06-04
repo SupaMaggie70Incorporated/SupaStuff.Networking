@@ -4,7 +4,7 @@ using System.Linq;
 using System.Text;
 using System.Threading.Tasks;
 using SupaStuff.Net.Packets;
-using SupaStuff.Net.Server;
+using SupaStuff.Net.ServerSide;
 
 namespace SupaStuff.Net.Example
 {

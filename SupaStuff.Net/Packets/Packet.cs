@@ -5,8 +5,8 @@ using System.Text;
 using System.Threading.Tasks;
 using SupaStuff.Net.Packets.Util;
 using System.Reflection;
-using SupaStuff.Net.Client;
-using SupaStuff.Net.Server;
+using SupaStuff.Net.ClientSide;
+using SupaStuff.Net.ServerSide;
 namespace SupaStuff.Net.Packets
 {//this is where we make errors
     public abstract class Packet : IBytifiable, IDisposable

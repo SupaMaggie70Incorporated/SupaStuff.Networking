@@ -7,11 +7,11 @@ using System.Net;
 using System.Net.Sockets;
 
 using SupaStuff.Net.Packets;
-namespace SupaStuff.Net.Server
+namespace SupaStuff.Net.ServerSide
 {
-    public class ServerHost : IDisposable
+    public class Server : IDisposable
     {
-        public static ServerHost Instance;
+        public static Server Instance;
         public TcpListener listener;
         public static IPAddress host;
         public static int port = 12345;
@@ -30,7 +30,7 @@ namespace SupaStuff.Net.Server
                 }
             }
         }
-        public ServerHost()
+        public Server()
         {
             connections = new List<ClientConnection>(1024);
             localConnection = ClientConnection.LocalClient();

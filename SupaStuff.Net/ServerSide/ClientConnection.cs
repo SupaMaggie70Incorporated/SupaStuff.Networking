@@ -7,7 +7,7 @@ using System.Net.Sockets;
 using System.Net;
 using SupaStuff.Net.Shared;
 using SupaStuff.Net.Packets;
-namespace SupaStuff.Net.Server
+namespace SupaStuff.Net.ServerSide
 {
     public class ClientConnection : IDisposable
     {
@@ -21,7 +21,7 @@ namespace SupaStuff.Net.Server
         public IPAddress address;
         public ClientConnection(IAsyncResult ar)
         {
-            tcpClient = ServerHost.Instance.listener.EndAcceptTcpClient(ar);
+            tcpClient = Server.Instance.listener.EndAcceptTcpClient(ar);
         }
         public ClientConnection(TcpClient tcpClient)
         {

@@ -19,7 +19,7 @@ namespace SupaStuff.Net
             ClientLogger = Logger.GetLogger("Net/Client");
             Packets.Util.Bytifier.Init();
             Packets.Util.PacketTypesFinder.GetTypes();
-            Server.ServerHost.GetHost();
+            ServerSide.Server.GetHost();
         }
     }
 }

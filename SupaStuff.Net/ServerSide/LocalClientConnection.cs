@@ -8,15 +8,15 @@ using System.Net.Sockets;
 using System.Net;
 using SupaStuff.Net.Packets;
 
-namespace SupaStuff.Net.Server
+namespace SupaStuff.Net.ServerSide
 {
     public class LocalClientConnection : ClientConnection
     {
-        private Client.Client client;
+        private ClientSide.Client client;
         private LocalClientConnection()
         {
             this.IsLocal = true;
-            client = new Client.Client(this);
+            client = new ClientSide.Client(this);
             Main.ClientLogger.log("Local client initialized");
         }
         public static LocalClientConnection LocalClient()

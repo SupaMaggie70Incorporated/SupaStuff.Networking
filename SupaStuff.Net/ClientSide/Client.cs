@@ -5,11 +5,11 @@ using System.Text;
 using System.Threading.Tasks;
 using System.Net.Sockets;
 using System.Net;
-using SupaStuff.Net.Server;
+using SupaStuff.Net.ServerSide;
 using SupaStuff.Net.Shared;
 using SupaStuff.Net.Packets;
 
-namespace SupaStuff.Net.Client
+namespace SupaStuff.Net.ClientSide
 {
     public class Client : IDisposable
     {
@@ -29,13 +29,13 @@ namespace SupaStuff.Net.Client
             IsLocal = false;
             Instance = this;
             //Server script will calculate the local IP stuff for us
-            ServerHost.GetHost();
+            Server.GetHost();
             //New client to connect with
             tcpClient = new TcpClient();
             //How long to wait
             TimeSpan timeSpan = TimeSpan.FromSeconds(1);
             //Try to connect to server
-            var result = tcpClient.BeginConnect(ip, ServerHost.port, null, null);
+            var result = tcpClient.BeginConnect(ip, Server.port, null, null);
             //Wait a second, if it hasnt worked it cant connect
             var success = result.AsyncWaitHandle.WaitOne(timeSpan);
             if (!success)
@@ -59,7 +59,7 @@ namespace SupaStuff.Net.Client
             //Local client
             this.IsLocal = true;
             Instance = this;
-            ServerHost.GetHost();
+            Server.GetHost();
             localConnection = localconnection;
 
         }
