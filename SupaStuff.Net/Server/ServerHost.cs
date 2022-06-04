@@ -30,7 +30,6 @@ namespace SupaStuff.Net.Server
                 }
             }
         }
-        // Start is called before the first frame update
         public ServerHost()
         {
             connections = new List<ClientConnection>(1024);
@@ -41,7 +40,6 @@ namespace SupaStuff.Net.Server
             listener.BeginAcceptTcpClient(new System.AsyncCallback(ClientConnected), null);
         }
 
-        // Update is called once per frame
         public void Update()
         {
             for(int i = 0;i < connections.Count;i++)
@@ -55,14 +53,14 @@ namespace SupaStuff.Net.Server
                 connection.Update();
             }
         }
-        public void ClientConnected(System.IAsyncResult ar)
+        private void ClientConnected(System.IAsyncResult ar)
         {
             try
             {
                 ClientConnection connection = new ClientConnection(listener.EndAcceptTcpClient(ar));
                 connections.Add(connection);
                 Console.WriteLine("Someone connected!");
-                if(OnClientConnected != null) OnClientConnected.Invoke(connection);
+                ClientConnectedEvent(connection);
                 listener.BeginAcceptTcpClient(new System.AsyncCallback(ClientConnected), null);
             }catch
             {
@@ -71,11 +69,6 @@ namespace SupaStuff.Net.Server
                     Dispose();
                 }
             }
-        }
-        public void RecievePacket(ClientConnection player, Packet packet)
-        {
-            packet.Execute(player);
-
         }
         public void Dispose()
         {
@@ -95,6 +88,11 @@ namespace SupaStuff.Net.Server
             connections.Clear();
         }
         public event Action<ClientConnection> OnClientConnected;
+        private void ClientConnectedEvent(ClientConnection connection)
+        {
+            if (OnClientConnected == null) return;
+            OnClientConnected.Invoke(connection);
+        }
 
     }
 }

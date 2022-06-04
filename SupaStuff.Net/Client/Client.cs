@@ -13,8 +13,8 @@ namespace SupaStuff.Net.Client
 {
     public class Client : IDisposable
     {
-        public TcpClient tcpClient;
-        public NetworkStream stream;
+        private TcpClient tcpClient;
+        private NetworkStream stream;
         public static Client Instance;
         public bool IsLocal;
         public ClientConnection localConnection;

@@ -11,14 +11,12 @@ namespace SupaStuff.Net.Server
 {
     public class ClientConnection : IDisposable
     {
-        public TcpClient tcpClient;
-        public NetworkStream stream;
-        public Client.Client localClient;
+        protected TcpClient tcpClient;
+        protected NetworkStream stream;
         public bool IsLocal;
-        public List<Packet> packetsToWrite = new List<Packet>();
+        protected List<Packet> packetsToWrite = new List<Packet>();
         public bool IsActive = true;
-        Client.Client client;
-        public HandshakeStage handshakeStage = HandshakeStage.unstarted;
+        protected HandshakeStage handshakeStage = HandshakeStage.unstarted;
         public PacketStream packetStream;
         public ClientConnection(IAsyncResult ar)
         {
@@ -34,8 +32,6 @@ namespace SupaStuff.Net.Server
         }
         protected ClientConnection()
         {
-            this.IsLocal = true;
-            localClient = new Client.Client(this);
         }
         public static ClientConnection LocalClient()
         {
@@ -48,11 +44,11 @@ namespace SupaStuff.Net.Server
         /// 
         /// </summary>
         /// <param name="packet"></param>
-        public void SendPacket(Packet packet)
+        public virtual void SendPacket(Packet packet)
         {
             packetStream.SendPacket(packet);
         }
-        public void Update()
+        public virtual void Update()
         {
             packetStream.Update();
         }
@@ -62,7 +58,7 @@ namespace SupaStuff.Net.Server
         /// <param name="message">
         /// The message to be sent
         /// </param>
-        public void Dispose()
+        public virtual void Dispose()
         {
             Console.WriteLine("Closing Server to Client connection");
             if (IsLocal)

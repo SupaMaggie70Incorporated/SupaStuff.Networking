@@ -91,6 +91,7 @@ namespace SupaStuff.Net.Shared
                 }
             }catch
             {
+                onError();
                 Dispose();
                 return false;
             }
@@ -126,7 +127,11 @@ namespace SupaStuff.Net.Shared
             }
             catch
             {
-                if (this != null) Dispose();
+                if (this != null)
+                {
+                    onError();
+                    Dispose();
+                }
             }
         }
         /// <summary>
@@ -256,7 +261,7 @@ namespace SupaStuff.Net.Shared
         /// </summary>
         public void Dispose()
         {
-
+            DisconnectedEvent();
         }
         /// <summary>
         /// Add the packet to the queue, to be sent when its ready
@@ -266,7 +271,7 @@ namespace SupaStuff.Net.Shared
         {
             if (packetsToWrite.Count + 1 == packetsToWrite.Capacity)
             {
-                //To many packets in queue!
+                //Too many packets in queue!
                 onError();
                 try
                 {
@@ -309,5 +314,13 @@ namespace SupaStuff.Net.Shared
             }
             return shouldReturn;
         }
+        public event Action OnDisconnected;
+
+        private void DisconnectedEvent()
+        {
+            if (OnDisconnected == null) return;
+            OnDisconnected.Invoke();
+        }
+
     }
 }
