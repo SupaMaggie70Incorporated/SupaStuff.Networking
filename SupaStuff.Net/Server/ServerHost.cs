@@ -38,6 +38,7 @@ namespace SupaStuff.Net.Server
             listener = new TcpListener(host, port);
             listener.Start();
             listener.BeginAcceptTcpClient(new System.AsyncCallback(ClientConnected), null);
+            Main.NetLogger.log("Server started!");
         }
 
         public void Update()
@@ -59,7 +60,6 @@ namespace SupaStuff.Net.Server
             {
                 ClientConnection connection = new ClientConnection(listener.EndAcceptTcpClient(ar));
                 connections.Add(connection);
-                Console.WriteLine("Someone connected!");
                 ClientConnectedEvent(connection);
                 listener.BeginAcceptTcpClient(new System.AsyncCallback(ClientConnected), null);
             }catch
@@ -86,6 +86,7 @@ namespace SupaStuff.Net.Server
             listener.Stop();
             Instance = null;
             connections.Clear();
+            Main.NetLogger.log("Closing server");
         }
         public event Action<ClientConnection> OnClientConnected;
         private void ClientConnectedEvent(ClientConnection connection)

@@ -44,9 +44,12 @@ namespace SupaStuff.Net.Client
             }
             //Get the stream
             stream = tcpClient.GetStream();
-            packetStream = new PacketStream(stream, false, () => false);
+            packetStream = new PacketStream(stream, false, () => { Dispose();return false; });
+
+            Main.ClientLogger.log("Client started!");
 
         }
+        [Obsolete]
         /// <summary>
         /// Create a local client connection
         /// </summary>
@@ -58,6 +61,7 @@ namespace SupaStuff.Net.Client
             Instance = this;
             ServerHost.GetHost();
             localConnection = localconnection;
+
         }
         /// <summary>
         /// Send a packet over the stream
@@ -85,7 +89,7 @@ namespace SupaStuff.Net.Client
         /// </summary>
         public void Dispose()
         {
-            Console.WriteLine("Client closing");
+            Main.ClientLogger.log("Client closed!");
             Instance = null;
             stream.Close();
             stream.Dispose();

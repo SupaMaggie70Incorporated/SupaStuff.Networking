@@ -18,6 +18,7 @@ namespace SupaStuff.Net.Server
         public bool IsActive = true;
         protected HandshakeStage handshakeStage = HandshakeStage.unstarted;
         public PacketStream packetStream;
+        public IPAddress address;
         public ClientConnection(IAsyncResult ar)
         {
             tcpClient = ServerHost.Instance.listener.EndAcceptTcpClient(ar);
@@ -29,6 +30,7 @@ namespace SupaStuff.Net.Server
             stream = tcpClient.GetStream();
             packetStream = new PacketStream(stream, true, () => false);
             packetStream.clientConnection = this;
+            address = (tcpClient.Client.RemoteEndPoint as IPEndPoint).Address;
         }
         protected ClientConnection()
         {
@@ -60,7 +62,7 @@ namespace SupaStuff.Net.Server
         /// </param>
         public virtual void Dispose()
         {
-            Console.WriteLine("Closing Server to Client connection");
+            Main.ServerLogger.log("Connection to client " + address + " terminated");
             if (IsLocal)
             {
             }

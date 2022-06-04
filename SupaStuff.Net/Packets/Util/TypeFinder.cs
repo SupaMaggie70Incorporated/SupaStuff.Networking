@@ -39,7 +39,6 @@ namespace SupaStuff.Net.Packets.Util
                         types[index++] = _types[j];
                     }catch
                     {
-                        Console.WriteLine("Index: " + (index - 1).ToString() + " caused an error");
                         break;
                     }
                 }
@@ -71,7 +70,6 @@ namespace SupaStuff.Net.Packets.Util
                     }
                     catch
                     {
-                        Console.WriteLine("Index: " + (index - 1).ToString() + " caused an error");
                         break;
                     }
                 }

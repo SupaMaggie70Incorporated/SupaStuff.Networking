@@ -37,7 +37,8 @@ namespace SupaStuff.Net.Shared
         {
             isRunning = customOnError();
             if (!isRunning)
-            { 
+            {
+                Dispose();
             }
         }
         /// <summary>
@@ -187,7 +188,6 @@ namespace SupaStuff.Net.Shared
                 }
             }catch
             {
-                Console.WriteLine("Error :(");
                 onError();
                 Dispose();
             }
@@ -214,7 +214,6 @@ namespace SupaStuff.Net.Shared
                 }
             }catch
             {
-                Console.WriteLine("Error :(");
                 onError();
                 Dispose();
             }
@@ -320,6 +319,14 @@ namespace SupaStuff.Net.Shared
         {
             if (OnDisconnected == null) return;
             OnDisconnected.Invoke();
+            if(isServer)
+            {
+                Main.ServerLogger.log("Client decided to disconnect!");
+            }
+            else
+            {
+                Main.ClientLogger.log("Server aborted connection!");
+            }
         }
 
     }

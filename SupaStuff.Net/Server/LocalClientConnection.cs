@@ -17,6 +17,7 @@ namespace SupaStuff.Net.Server
         {
             this.IsLocal = true;
             client = new Client.Client(this);
+            Main.ClientLogger.log("Local client initialized");
         }
         public static LocalClientConnection LocalClient()
         {
@@ -24,7 +25,7 @@ namespace SupaStuff.Net.Server
         }
         public override void SendPacket(Packet packet)
         {
-
+            client.packetStream.HandleIncomingPacket(packet);
         }
     }
 }

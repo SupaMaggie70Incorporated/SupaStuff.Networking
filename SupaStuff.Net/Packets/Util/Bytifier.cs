@@ -28,7 +28,6 @@ namespace SupaStuff.Net.Packets.Util
                 {
                     if(timesPrinted < 5)
                     {
-                        Console.WriteLine("Function method: " + method.Name);
                         timesPrinted++;
                     }
                 }
