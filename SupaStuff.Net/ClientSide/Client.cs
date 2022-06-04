@@ -32,6 +32,7 @@ namespace SupaStuff.Net.ClientSide
             Server.GetHost();
             //New client to connect with
             tcpClient = new TcpClient();
+            /*
             //How long to wait
             TimeSpan timeSpan = TimeSpan.FromSeconds(1);
             //Try to connect to server
@@ -42,6 +43,8 @@ namespace SupaStuff.Net.ClientSide
             {
                 return;
             }
+            */
+            tcpClient.Connect(new IPEndPoint(ip, Server.port));
             //Get the stream
             stream = tcpClient.GetStream();
             packetStream = new PacketStream(stream, false, () => { Dispose();return false; });

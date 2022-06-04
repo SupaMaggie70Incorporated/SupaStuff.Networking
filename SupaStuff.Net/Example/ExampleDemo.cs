@@ -7,7 +7,6 @@ using SupaStuff.Net;
 using SupaStuff.Net.ServerSide;
 
 
-
 namespace SupaStuff.Net.Example
 {
     public class ExampleDemo
