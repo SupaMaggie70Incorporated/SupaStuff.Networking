@@ -64,41 +64,32 @@ namespace SupaStuff.Net.Shared
                     int headerAmountRead = stream.Read(packetHeader, packetBodyIndex, headerReqLength);
                     if (headerAmountRead == headerReqLength)
                     {
-                        Console.WriteLine("Completed header");
                         packetID = BitConverter.ToInt32(packetHeader, 0);
                         packetSize = BitConverter.ToInt32(packetHeader, 4);
                         packetHeaderComplete = true;
                         packetBody = new byte[packetSize];
-                        Console.WriteLine("Header id: " + packetID + ", size: " + packetSize);
                         packetBodyIndex = 0;
                     }
                     else
                     {
-                        Console.WriteLine("Unable to complete header: " + headerReqLength + " : " + headerAmountRead);
                         packetBodyIndex += headerAmountRead;
                         return false;
                     }
                 }
                 if (packetSize == 0)
                 {
-                    Console.WriteLine("Completed packet body");
                     packet = FinishRecievePacket();
-                    Console.WriteLine("Packet: " + packet.GetType());
                     return true;
                 }
                 int reqLength = packetSize - packetBodyIndex;
                 int amountRead = stream.Read(packetBody, packetBodyIndex, reqLength);
                 if (reqLength == amountRead)
                 {
-                    Console.WriteLine("Completed packet body");
                     packet = FinishRecievePacket();
-                    Console.WriteLine("Packet: " + packet.GetType());
-                    if (stream.DataAvailable) Console.WriteLine("We have data available still?");
                     return true;
                 }
                 else
                 {
-                    Console.WriteLine("Unable to complete body: " + reqLength + " : " + amountRead);
                     packetBodyIndex += amountRead;
                     return false;
                 }
@@ -129,10 +120,9 @@ namespace SupaStuff.Net.Shared
             packetsToHandle.Remove(packet);
             try
             {
-                if (!RecievePacketEvent(packet))
+                if(!RecievePacketEvent(packet))
                 {
                     packet.Execute(clientConnection);
-                    Console.WriteLine("Recieved packet " + packet.GetType());
                 }
             }
             catch
@@ -192,9 +182,7 @@ namespace SupaStuff.Net.Shared
             sendingPacket = true;
             Packet.Packet packet = packetsToWrite[0];
             packetsToWrite.RemoveAt(0);
-            Console.WriteLine("Started sending packet");
             byte[] bytes = Packet.Packet.EncodePacket(packet);
-            Console.WriteLine(bytes.Length + " bytes being sent");
             stream.BeginWrite(bytes,0,bytes.Length,new AsyncCallback(EndSendPacket),null);
         }
 
@@ -204,7 +192,6 @@ namespace SupaStuff.Net.Shared
         /// <param name="ar"></param>
         public void EndSendPacket(IAsyncResult ar)
         {
-            Console.WriteLine("Finished sending packet");
             stream.EndWrite(ar);
             if (packetsToWrite.Count > 0)
             {
@@ -244,7 +231,7 @@ namespace SupaStuff.Net.Shared
             Packet.Packet[] packets = packetsToHandle.ToArray();
             foreach(Packet.Packet packet in packets)
             {
-                //HandleIncomingPacket(packet);
+                HandleIncomingPacket(packet);
             }
             
         }
@@ -281,7 +268,7 @@ namespace SupaStuff.Net.Shared
         public event _OnRecievePacket OnRecievePacket;
         public bool RecievePacketEvent(Packet.Packet packet)
         {
-            Console.WriteLine("Recieved a packet");
+            if (OnRecievePacket == null) return false;
             _OnRecievePacket[] methods = (_OnRecievePacket[])OnRecievePacket.GetInvocationList();
             bool shouldReturn = false;
             foreach(_OnRecievePacket method in methods)

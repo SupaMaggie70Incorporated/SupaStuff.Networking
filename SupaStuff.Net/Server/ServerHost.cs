@@ -36,7 +36,6 @@ namespace SupaStuff.Net.Server
             localConnection = ClientConnection.LocalClient();
             GetHost();
             listener = new TcpListener(host, port);
-            Console.WriteLine(host.ToString() + ":" + port);
             listener.Start();
             listener.BeginAcceptTcpClient(new System.AsyncCallback(ClientConnected), null);
         }

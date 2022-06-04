@@ -65,19 +65,14 @@ namespace SupaStuff.Net.Packet
         }
         public static byte[] EncodePacket(Packet packet)
         {
-            Console.WriteLine("Tryna encode a packet");
             byte[] packettype = BitConverter.GetBytes(packet.GetID());
-            Console.WriteLine("Got ID");
             byte[] packetbytes = packet.Bytify();
-            Console.WriteLine("Got bytes");
             byte[] packetsize = BitConverter.GetBytes(packetbytes.Length);
-            Console.WriteLine("Got size: "+packetbytes.Length);
             //First comes type, then size, then the packet
             byte[] final = new byte[8 + packetbytes.Length];
             Buffer.BlockCopy(packettype, 0, final, 0, packettype.Length);
             Buffer.BlockCopy(packetsize, 0, final, packettype.Length, packetsize.Length);
             Buffer.BlockCopy(packetbytes, 0, final, packettype.Length + packetsize.Length, packetbytes.Length);
-            Console.WriteLine("Encoded packet");
             return final;
         }
         public abstract void Execute(ClientConnection sender);

@@ -21,11 +21,6 @@ namespace SupaStuff.Net.Packet.Util
             if (hasGottenTypes) return TypeFinder.types;
             hasGottenTypes = true;
             Assembly[] assemblies = AppDomain.CurrentDomain.GetAssemblies();
-            Console.WriteLine("There are " + assemblies.Length + " assemblies loaded right now");
-            foreach(Assembly assembly in assemblies)
-            {
-                Console.WriteLine("    Assembly: " + assembly.FullName);
-            }
             Type[][] TypesPerAssembly = new Type[assemblies.Length][];
             int length = 0;
             for (int i = 0; i < assemblies.Length; i++)
@@ -33,7 +28,6 @@ namespace SupaStuff.Net.Packet.Util
                 TypesPerAssembly[i] = assemblies[i].GetTypes();
                 length += TypesPerAssembly[i].Length;
             }
-            Console.WriteLine("Number of types: " + length);
             Type[] types = new Type[length];
             int index = 0;
             for (int i = 0; i < assemblies.Length; i++)
@@ -49,13 +43,6 @@ namespace SupaStuff.Net.Packet.Util
                         Console.WriteLine("Index: " + (index - 1).ToString() + " caused an error");
                         break;
                     }
-                }
-            }
-            foreach(Type type in types)
-            {
-                if(type.FullName.Contains("SupaStuff"))
-                {
-                    Console.WriteLine(type.FullName);
                 }
             }
             TypeFinder.types = types;

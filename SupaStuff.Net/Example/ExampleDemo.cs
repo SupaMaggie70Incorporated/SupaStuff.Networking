@@ -52,7 +52,7 @@ namespace SupaStuff.Net.Example
 
             Console.ReadKey();
 
-            Console.WriteLine("Closing Server...");
+            Console.WriteLine("Closing Server..." + testServer.connections.Count);
             testServer.Dispose();
             isRunning = false;
 
