@@ -25,7 +25,7 @@ namespace SupaStuff.Net.Shared
         #region Packet buffer
 
         public bool packetHeaderComplete = false;
-        public byte[] packetHeader = new byte[12];
+        public byte[] packetHeader = new byte[8];
         public int packetID = -1;
         public int packetSize = -1;
         public byte[] packetBody = null;
@@ -52,49 +52,59 @@ namespace SupaStuff.Net.Shared
         public bool TryGetPacket(out Packet.Packet packet)
         {
             packet = null;
-            if (!stream.DataAvailable || !stream.CanRead)
+            try
             {
-                return false;
-            }
-            if (!packetHeaderComplete)
-            {
-                int headerReqLength = 8 - packetBodyIndex;
-                int headerAmountRead = stream.Read(packetHeader,packetBodyIndex, headerReqLength);
-                if (headerAmountRead == headerReqLength)
+                if (!stream.DataAvailable || !stream.CanRead)
                 {
-                    Console.WriteLine("Completed header");
-                    packetID = BitConverter.ToInt32(packetHeader, 0);
-                    packetSize = BitConverter.ToInt32(packetHeader, 4);
-                    packetHeaderComplete = true;
-                    packetBody = new byte[packetSize];
-                    Console.WriteLine("Header id: " + packetID + ", size: " + packetSize);
-                    packetBodyIndex = 0;
+                    return false;
+                }
+                if (!packetHeaderComplete)
+                {
+                    int headerReqLength = 8 - packetBodyIndex;
+                    int headerAmountRead = stream.Read(packetHeader, packetBodyIndex, headerReqLength);
+                    if (headerAmountRead == headerReqLength)
+                    {
+                        Console.WriteLine("Completed header");
+                        packetID = BitConverter.ToInt32(packetHeader, 0);
+                        packetSize = BitConverter.ToInt32(packetHeader, 4);
+                        packetHeaderComplete = true;
+                        packetBody = new byte[packetSize];
+                        Console.WriteLine("Header id: " + packetID + ", size: " + packetSize);
+                        packetBodyIndex = 0;
+                    }
+                    else
+                    {
+                        Console.WriteLine("Unable to complete header: " + headerReqLength + " : " + headerAmountRead);
+                        packetBodyIndex += headerAmountRead;
+                        return false;
+                    }
+                }
+                if (packetSize == 0)
+                {
+                    Console.WriteLine("Completed packet body");
+                    packet = FinishRecievePacket();
+                    Console.WriteLine("Packet: " + packet.GetType());
+                    return true;
+                }
+                int reqLength = packetSize - packetBodyIndex;
+                int amountRead = stream.Read(packetBody, packetBodyIndex, reqLength);
+                if (reqLength == amountRead)
+                {
+                    Console.WriteLine("Completed packet body");
+                    packet = FinishRecievePacket();
+                    Console.WriteLine("Packet: " + packet.GetType());
+                    if (stream.DataAvailable) Console.WriteLine("We have data available still?");
+                    return true;
                 }
                 else
                 {
-                    Console.WriteLine("Unable to complete header: " + headerReqLength + " : " + headerAmountRead);
-                    packetBodyIndex += headerAmountRead;
+                    Console.WriteLine("Unable to complete body: " + reqLength + " : " + amountRead);
+                    packetBodyIndex += amountRead;
                     return false;
                 }
-            }
-            if(packetSize == 0)
+            }catch
             {
-                Console.WriteLine("Completed packet body");
-                packet = FinishRecievePacket();
-                return true;
-            }
-            int reqLength = packetSize - packetBodyIndex;
-            int amountRead = stream.Read(packetBody, packetBodyIndex, reqLength);
-            if (reqLength == amountRead)
-            {
-                Console.WriteLine("Completed packet body");
-                packet = FinishRecievePacket();
-                return true;
-            }
-            else
-            {
-                Console.WriteLine("Unable to complete body: " + reqLength + " : " + amountRead);
-                packetBodyIndex += amountRead;
+                Dispose();
                 return false;
             }
         }
@@ -116,11 +126,13 @@ namespace SupaStuff.Net.Shared
         /// <param name="packet"></param>
         public void HandleIncomingPacket(Packet.Packet packet)
         {
+            packetsToHandle.Remove(packet);
             try
             {
                 if (!RecievePacketEvent(packet))
                 {
                     packet.Execute(clientConnection);
+                    Console.WriteLine("Recieved packet " + packet.GetType());
                 }
             }
             catch
@@ -146,7 +158,7 @@ namespace SupaStuff.Net.Shared
         {
             packetID = -1;
             packetBody = null;
-            packetBodyIndex = -1;
+            packetBodyIndex = 0;
             packetHeader = new byte[8];
             packetSize = -1;
             packetHeaderComplete = false;
@@ -182,6 +194,7 @@ namespace SupaStuff.Net.Shared
             packetsToWrite.RemoveAt(0);
             Console.WriteLine("Started sending packet");
             byte[] bytes = Packet.Packet.EncodePacket(packet);
+            Console.WriteLine(bytes.Length + " bytes being sent");
             stream.BeginWrite(bytes,0,bytes.Length,new AsyncCallback(EndSendPacket),null);
         }
 
@@ -231,8 +244,9 @@ namespace SupaStuff.Net.Shared
             Packet.Packet[] packets = packetsToHandle.ToArray();
             foreach(Packet.Packet packet in packets)
             {
-                HandleIncomingPacket(packet);
+                //HandleIncomingPacket(packet);
             }
+            
         }
         /// <summary>
         /// Called to ease up the Garbage collection by disposing manually

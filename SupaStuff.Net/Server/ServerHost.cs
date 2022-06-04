@@ -62,6 +62,7 @@ namespace SupaStuff.Net.Server
                 ClientConnection connection = new ClientConnection(listener.EndAcceptTcpClient(ar));
                 connections.Add(connection);
                 Console.WriteLine("Someone connected!");
+                if(OnClientConnected != null) OnClientConnected.Invoke(connection);
                 listener.BeginAcceptTcpClient(new System.AsyncCallback(ClientConnected), null);
             }catch
             {
@@ -93,6 +94,7 @@ namespace SupaStuff.Net.Server
             Instance = null;
             connections.Clear();
         }
+        public event Action<ClientConnection> OnClientConnected;
 
     }
 }

@@ -86,7 +86,7 @@ namespace SupaStuff.Net.Client
         }
         public void SendExamplePacket()
         {
-            SendPacket(new Example.ExamplePacket());
+            SendPacket(new Example.ExamplePacket(129));
         }
     }
 }

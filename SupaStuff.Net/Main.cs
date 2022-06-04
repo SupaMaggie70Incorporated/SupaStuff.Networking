@@ -14,6 +14,7 @@ namespace SupaStuff.Net
         {
             //NetLogger = Logger.GetLogger("SupaStuff.Net");
             Packet.Util.Bytifier.Init();
+            Packet.Util.PacketTypesFinder.GetTypes();
             Server.ServerHost.GetHost();
         }
     }

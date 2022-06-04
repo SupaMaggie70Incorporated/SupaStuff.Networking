@@ -26,6 +26,7 @@ namespace SupaStuff.Net.Packet.Util
                 APacket property = type.GetCustomAttribute<APacket>();
                 if (property != null)
                 {
+                    Console.WriteLine(type.FullName + " has the APacket attribute!");
                     if (property.isS2C)
                     {
                         if (s2ctypes.ContainsKey(property.PacketID))
@@ -50,6 +51,11 @@ namespace SupaStuff.Net.Packet.Util
                         c2sConstructors.Add(property.PacketID, func);
                         Console.WriteLine("Added new c2s constructor for " + type.FullName);
                     }
+                }
+                else if (type.FullName.ToLower().Contains("supa"))
+                {
+
+                    Console.WriteLine(type.FullName + " doesn't have the APacket attribute!");
                 }
             }
         }

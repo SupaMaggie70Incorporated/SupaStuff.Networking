@@ -33,6 +33,9 @@ namespace SupaStuff.Net.Example
             Console.WriteLine("Initiating Scarry Black Window...");
             
             testServer = new Server.ServerHost();
+            testServer.OnClientConnected += (ClientConnection conn) => {
+                conn.SendPacket(new ExamplePacket2());
+            };
             Console.WriteLine("Starting Server at\n     " + ServerHost.host.ToString() + ":" + ServerHost.port);
 
             
@@ -44,6 +47,7 @@ namespace SupaStuff.Net.Example
             Task task = new Task(updateLoop);
             task.Start();
 
+            client.SendExamplePacket();
             client.SendExamplePacket();
 
             Console.ReadKey();
