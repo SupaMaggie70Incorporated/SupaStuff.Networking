@@ -88,8 +88,8 @@ namespace SupaStuff.Net.ClientSide
             if (!IsLocal)
             {
                 packetStream.Update();
+                if (!tcpClient.Connected) Dispose();
             }
-            if(!tcpClient.Connected) Dispose();
         }
         public delegate void OnMessage(Packet packet);
         public event OnMessage onMessage;
