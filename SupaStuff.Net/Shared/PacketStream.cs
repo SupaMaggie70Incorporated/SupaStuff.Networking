@@ -122,10 +122,8 @@ namespace SupaStuff.Net.Shared
             packetsToHandle.Remove(packet);
             try
             {
-                if(!RecievePacketEvent(packet))
-                {
-                    packet.Execute(clientConnection);
-                }
+                RecievePacketEvent(packet);
+                packet.Execute(clientConnection);
             }
             catch
             {
@@ -313,19 +311,10 @@ namespace SupaStuff.Net.Shared
         /// Called when a packet is recieved
         /// </summary>
         public event _OnRecievePacket OnRecievePacket;
-        private bool RecievePacketEvent(Packet packet)
+        private void RecievePacketEvent(Packet packet)
         {
-            if (OnRecievePacket == null) return false;
-            _OnRecievePacket[] methods = (_OnRecievePacket[])OnRecievePacket.GetInvocationList();
-            bool shouldReturn = false;
-            foreach(_OnRecievePacket method in methods)
-            {
-                if(method.Invoke(packet))
-                {
-                    shouldReturn = true;
-                }
-            }
-            return shouldReturn;
+            if (OnRecievePacket == null) return;
+            OnRecievePacket.Invoke(packet);
         }
         public event Action OnDisconnected;
 
