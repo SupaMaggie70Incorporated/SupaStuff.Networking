@@ -329,6 +329,8 @@ namespace SupaStuff.Net.Shared
 
         private void DisconnectedEvent()
         {
+            if (!isRunning) return;
+            isRunning = false;
             if (OnDisconnected == null) return;
             OnDisconnected.Invoke();
             if(isServer)
