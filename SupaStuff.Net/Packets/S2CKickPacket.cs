@@ -16,7 +16,7 @@ namespace SupaStuff.Net.Packets
         }
         public override void Execute(ClientConnection sender)
         {
-
+            ClientSide.Client.Instance?.Dispose();
         }
         public S2CKickPacket(byte[] bytes) : base(bytes)
         {

@@ -98,6 +98,28 @@ namespace SupaStuff.Net.ClientSide
             stream.Dispose();
             tcpClient.Close();
             tcpClient.Dispose();
+            packetStream.Dispose();
+        }
+        public void Disconnect()
+        {
+            lock (packetStream.packetsToWrite)
+            {
+                packetStream.packetsToWrite.Clear();
+                packetStream.packetsToWrite.Add(new C2SDisconnectPacket());
+            }
+
+        }
+        public void Disconnect(string message)
+        {
+            lock (packetStream.packetsToWrite)
+            {
+                packetStream.packetsToWrite.Clear();
+                packetStream.packetsToWrite.Add(new C2SDisconnectPacket(message));
+            }
+        }
+        public void HardDisconnect()
+        {
+            Dispose();
         }
     }
 }

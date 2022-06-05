@@ -210,6 +210,10 @@ namespace SupaStuff.Net.Shared
                         Dispose();
                         return;
                     }
+                    else if(currentSentPacket.GetType() == typeof(C2SDisconnectPacket))
+                    {
+                        Dispose();
+                    }
                     if (packetsToWrite.Count > 0)
                     {
                         StartSendPacket();
