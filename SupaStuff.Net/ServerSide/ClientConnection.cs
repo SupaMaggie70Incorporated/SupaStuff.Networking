@@ -63,6 +63,8 @@ namespace SupaStuff.Net.ServerSide
         /// </param>
         public virtual void Dispose()
         {
+            if (!IsActive) return;
+            IsActive = false;
             Main.ServerLogger.log("Connection to client " + address + " terminated");
             if (IsLocal)
             {

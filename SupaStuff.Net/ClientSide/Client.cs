@@ -17,6 +17,7 @@ namespace SupaStuff.Net.ClientSide
         private NetworkStream stream;
         public static Client Instance;
         public bool IsLocal;
+        public bool IsActive;
         public ClientConnection localConnection;
         public PacketStream packetStream;
         /// <summary>
@@ -92,6 +93,8 @@ namespace SupaStuff.Net.ClientSide
         /// </summary>
         public void Dispose()
         {
+            if (!IsActive) return;
+            IsActive = false;
             Main.ClientLogger.log("Client closed!");
             Instance = null;
             stream.Close();
