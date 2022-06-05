@@ -237,8 +237,10 @@ namespace SupaStuff.Net.Shared
         /// </summary>
         public void Update()
         {
+            /*
             long time = DateTime.UtcNow.Ticks;
             //Remove old packets
+            
             for (int i = 0; i < packetsToWrite.Count; i++)
             {
                 Packet packet = packetsToWrite[i];
@@ -249,7 +251,7 @@ namespace SupaStuff.Net.Shared
                     i--;
                 }
             }
-            
+            */
             //Check for new packets to recieve
             CheckForPackets();
 
