@@ -30,6 +30,7 @@ namespace SupaStuff.Net.ServerSide
             stream = tcpClient.GetStream();
             packetStream = new PacketStream(stream, true, () => false);
             packetStream.clientConnection = this;
+            packetStream.OnDisconnected += Dispose;
             address = (tcpClient.Client.RemoteEndPoint as IPEndPoint).Address;
         }
         protected ClientConnection()

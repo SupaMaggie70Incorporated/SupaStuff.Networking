@@ -16,6 +16,7 @@ namespace SupaStuff.Net.Packets
         }
         public override void Execute(ClientConnection sender)
         {
+            Main.ClientLogger.log("You have been kicked from the server for:\n    " + message);
             ClientSide.Client.Instance?.Dispose();
         }
         public S2CKickPacket(byte[] bytes) : base(bytes)

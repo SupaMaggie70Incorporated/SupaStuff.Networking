@@ -22,7 +22,7 @@ namespace SupaStuff.Net.Example
         public ExamplePacket2(byte[] bytes) : base(bytes)
         {
         }
-        public ExamplePacket2() : base(new byte[0])
+        public ExamplePacket2() : base(null)
         {
         }
     }

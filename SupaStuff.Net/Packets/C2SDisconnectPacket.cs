@@ -16,7 +16,7 @@ namespace SupaStuff.Net.Packets
         }
         public override void Execute(ClientConnection sender)
         {
-            Main.ServerLogger.log("Client " + sender.address.ToString() + " disconnected from server.");
+            Main.ServerLogger.log("Client " + sender.address.ToString() + " disconnected from server for:\n    " + message);
             sender.Dispose();
         }
         public C2SDisconnectPacket() : base(null)

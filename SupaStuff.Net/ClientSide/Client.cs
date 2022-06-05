@@ -48,7 +48,7 @@ namespace SupaStuff.Net.ClientSide
             //Get the stream
             stream = tcpClient.GetStream();
             packetStream = new PacketStream(stream, false, () => { Dispose();return false; });
-
+            packetStream.OnDisconnected += Dispose;
             Main.ClientLogger.log("Client started!");
 
         }

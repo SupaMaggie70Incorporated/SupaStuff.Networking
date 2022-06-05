@@ -28,7 +28,7 @@ namespace SupaStuff.Net.Example
         {
             num = BitConverter.ToInt16(bytes, 0);
         }
-        public ExamplePacket(short num) : base(new byte[0])
+        public ExamplePacket(short num) : base(null)
         {
             this.num = num;
         }
