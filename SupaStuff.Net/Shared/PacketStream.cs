@@ -18,9 +18,10 @@ namespace SupaStuff.Net.Shared
         public ServerSide.ClientConnection clientConnection = null;
         private NetworkStream stream;
         private Func<bool> customOnError;
-        private List<Packet> packetsToWrite = new List<Packet>(1024);
+        internal List<Packet> packetsToWrite = new List<Packet>(1024);
         private List<Packet> packetsToHandle = new List<Packet>(1024);
         private bool sendingPacket = false;
+        public Packet currentSentPacket;
         #region Packet buffer
 
         bool packetHeaderComplete = false;
@@ -183,6 +184,7 @@ namespace SupaStuff.Net.Shared
                     sendingPacket = true;
                     Packet packet = packetsToWrite[0];
                     packetsToWrite.RemoveAt(0);
+                    currentSentPacket = packet;
                     byte[] bytes = Packet.EncodePacket(packet);
                     stream.BeginWrite(bytes, 0, bytes.Length, new AsyncCallback(EndSendPacket), null);
                 }
@@ -203,6 +205,11 @@ namespace SupaStuff.Net.Shared
                 lock (packetsToWrite)
                 {
                     stream.EndWrite(ar);
+                    if(currentSentPacket.GetType() == typeof(S2CKickPacket))
+                    {
+                        Dispose();
+                        return;
+                    }
                     if (packetsToWrite.Count > 0)
                     {
                         StartSendPacket();
@@ -210,6 +217,7 @@ namespace SupaStuff.Net.Shared
                     else
                     {
                         sendingPacket = false;
+                        currentSentPacket = null;
                     }
                 }
             }catch
