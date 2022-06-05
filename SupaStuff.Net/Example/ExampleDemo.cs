@@ -29,12 +29,14 @@ namespace SupaStuff.Net.Example
 
         public ExampleDemo()
         {
-            Console.WriteLine("Initiating Scarry Black Window...");
+            Console.WriteLine("Initiating Scarry Black Window....");
             
-            testServer = new ServerSide.Server();
+            testServer = new Server();
+            /*
             testServer.OnClientConnected += (ClientConnection conn) => {
                 conn.SendPacket(new ExamplePacket2());
             };
+            */
             Console.WriteLine("Starting Server at\n     " + Server.host.ToString() + ":" + Server.port);
 
             

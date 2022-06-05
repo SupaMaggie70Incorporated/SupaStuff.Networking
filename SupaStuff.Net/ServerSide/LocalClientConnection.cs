@@ -27,5 +27,15 @@ namespace SupaStuff.Net.ServerSide
         {
             client.packetStream.HandleIncomingPacket(packet);
         }
+        public override void Update()
+        {
+            return;
+        }
+        public override void Kick()
+        {
+        }
+        public override void Kick(string message)
+        {
+        }
     }
 }

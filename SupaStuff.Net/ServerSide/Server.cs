@@ -33,11 +33,13 @@ namespace SupaStuff.Net.ServerSide
         public Server()
         {
             connections = new List<ClientConnection>(1024);
-            localConnection = ClientConnection.LocalClient();
             GetHost();
             listener = new TcpListener(host, port);
             listener.Start();
+            Console.WriteLine("Server started");
             listener.BeginAcceptTcpClient(new System.AsyncCallback(ClientConnected), null);
+            Console.WriteLine("Accepting tcp client");
+            localConnection = ClientConnection.LocalClient();
             Main.NetLogger.log("Server started!");
         }
 
