@@ -36,7 +36,7 @@ namespace SupaStuff.Net.ServerSide
         protected ClientConnection()
         {
         }
-        public static ClientConnection LocalClient()
+        public static LocalClientConnection LocalClient()
         {
             return LocalClientConnection.LocalClient();
         }

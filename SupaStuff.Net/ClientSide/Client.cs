@@ -18,7 +18,7 @@ namespace SupaStuff.Net.ClientSide
         public static Client Instance;
         public bool IsLocal;
         public bool IsActive;
-        public ClientConnection localConnection;
+        public LocalClientConnection localConnection;
         public PacketStream packetStream;
         /// <summary>
         /// Create a client and attempt to connect to server
@@ -58,7 +58,7 @@ namespace SupaStuff.Net.ClientSide
         /// Create a local client connection
         /// </summary>
         /// <param name="localconnection"></param>
-        public Client(ClientConnection localconnection)
+        public Client(LocalClientConnection localconnection)
         {
             //Local client
             this.IsLocal = true;
@@ -73,7 +73,12 @@ namespace SupaStuff.Net.ClientSide
         /// <param name="packet"></param>
         public void SendPacket(Packet packet)
         {
-            packetStream.SendPacket(packet);
+            if (IsLocal) localConnection.RecievePacket(packet);
+            else packetStream.SendPacket(packet);
+        }
+        public void RecievePacket(Packet packet)
+        {
+            packet.Execute(null);
         }
         /// <summary>
         /// Try to recieve and write packets

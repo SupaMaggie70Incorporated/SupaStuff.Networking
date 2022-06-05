@@ -12,7 +12,7 @@ namespace SupaStuff.Net.ServerSide
 {
     public class LocalClientConnection : ClientConnection
     {
-        private ClientSide.Client client;
+        public ClientSide.Client client;
         private LocalClientConnection()
         {
             this.IsLocal = true;
@@ -25,7 +25,11 @@ namespace SupaStuff.Net.ServerSide
         }
         public override void SendPacket(Packet packet)
         {
-            client.packetStream.HandleIncomingPacket(packet);
+            client.RecievePacket(packet);
+        }
+        public void RecievePacket(Packet packet)
+        {
+            packet.Execute(this);
         }
         public override void Update()
         {
