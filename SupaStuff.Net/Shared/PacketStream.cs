@@ -306,11 +306,10 @@ namespace SupaStuff.Net.Shared
         /// </summary>
         /// <param name="packet"></param>
         /// <returns></returns>
-        public delegate bool _OnRecievePacket(Packet packet);
         /// <summary>
         /// Called when a packet is recieved
         /// </summary>
-        public event _OnRecievePacket OnRecievePacket;
+        public event Action<Packet> OnRecievePacket;
         private void RecievePacketEvent(Packet packet)
         {
             if (OnRecievePacket == null) return;
