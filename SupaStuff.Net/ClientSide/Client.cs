@@ -107,6 +107,7 @@ namespace SupaStuff.Net.ClientSide
             tcpClient.Close();
             tcpClient.Dispose();
             packetStream.Dispose();
+            if(IsLocal) localConnection.Dispose();
         }
         public void Disconnect()
         {
