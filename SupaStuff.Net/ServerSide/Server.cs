@@ -16,7 +16,7 @@ namespace SupaStuff.Net.ServerSide
         public static IPAddress host;
         public static int port = 12345;
         public bool IsActive = true;
-        public ClientConnection localConnection;
+        public LocalClientConnection localConnection;
         public List<ClientConnection> connections;
         public static void GetHost()
         {
@@ -40,6 +40,7 @@ namespace SupaStuff.Net.ServerSide
             listener.BeginAcceptTcpClient(new System.AsyncCallback(ClientConnected), null);
             Console.WriteLine("Accepting tcp client");
             localConnection = ClientConnection.LocalClient();
+            connections.Add(localConnection);
             Main.NetLogger.log("Server started!");
         }
 
@@ -95,6 +96,12 @@ namespace SupaStuff.Net.ServerSide
         {
             if (OnClientConnected == null) return;
             OnClientConnected.Invoke(connection);
+        }
+        public void SendToAll(Packet packet) 
+        {
+        foreach(ClientConnection connection in connections) {
+connections.SendPacket(packet);
+}
         }
 
     }
