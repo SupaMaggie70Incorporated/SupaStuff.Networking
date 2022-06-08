@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace SupaStuff.Net.Packets.BuiltIn.C2S
+namespace SupaStuff.Net.Packets.BuiltIn
 {
     [APacket(-538927,false,false)]
     internal class C2SWelcomePacket : Packet

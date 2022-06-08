@@ -10,7 +10,7 @@ namespace SupaStuff.Net.Packets.BuiltIn
     {
         public override byte[] Bytify()
         {
-            return base.Bytify();
+            return new byte[0];
         }
         public override void Execute(ClientConnection sender)
         {

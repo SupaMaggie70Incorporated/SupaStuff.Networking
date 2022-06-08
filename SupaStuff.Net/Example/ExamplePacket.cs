@@ -14,7 +14,7 @@ namespace SupaStuff.Net.Example
         public short num;
         public override void Execute(ClientConnection sender)
         {
-            Console.WriteLine("Number: " + num.ToString());
+            Main.NetLogger.log("Number: " + num.ToString());
             return;
         }
         public override byte[] Bytify()

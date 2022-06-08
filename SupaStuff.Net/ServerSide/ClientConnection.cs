@@ -61,7 +61,7 @@ namespace SupaStuff.Net.ServerSide
             packetStream.Update();
             if(!finishAuth)
             {
-                if (DateTime.Compare(DateTime.UtcNow, connectionStarted) > 5000) {
+                if (Math.TimeSince(connectionStarted) > 10) {
                     Dispose();
                 }
             }

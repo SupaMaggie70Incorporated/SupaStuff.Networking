@@ -29,7 +29,7 @@ namespace SupaStuff.Net.Shared
 
         //Server only
         internal DateTime lastCheckedIn = DateTime.UtcNow;
-        public static readonly int MaxUncheckedTime = 10000;
+        public static readonly int MaxUncheckedTime = 10;
 
         #region Packet buffer
 
@@ -129,7 +129,8 @@ namespace SupaStuff.Net.Shared
         {
             typeof(C2SDisconnectPacket),
             typeof(S2CKickPacket),
-            typeof(YesImHerePacket)
+            typeof(YesImHerePacket),
+            typeof(C2SWelcomePacket)
         };
         /// <summary>
         /// Called when a packet is recieved, to execute the packet's code and whatnot
@@ -139,8 +140,14 @@ namespace SupaStuff.Net.Shared
         {
             try 
             { 
+                Type type = packet.GetType();
+                if(isServer && !clientConnection.finishAuth && type != typeof(C2SWelcomePacket))
+                {
+                    Dispose();
+                    return;
+                }
                 packetsToHandle.Remove(packet);
-                if (!builtinPackets.Contains(packet.GetType()))
+                if (!builtinPackets.Contains(type))
                 {
                     RecievePacketEvent(packet);
                 }
@@ -229,6 +236,7 @@ namespace SupaStuff.Net.Shared
         /// <param name="ar"></param>
         private void EndSendPacket(IAsyncResult ar)
         {
+            lastCheckedIn = DateTime.UtcNow;
             try
             {
                 lock (packetsToWrite)
@@ -257,7 +265,7 @@ namespace SupaStuff.Net.Shared
                 }
                 if (!isServer)
                 {
-                    lastCheckedIn = DateTime.Now;
+                    lastCheckedIn = DateTime.UtcNow;
                 }
             }catch
             {
@@ -281,7 +289,7 @@ namespace SupaStuff.Net.Shared
                 {
                     Packet packet = packetsToWrite[i];
                     DateTime startTime = packet.startTime;
-                    if (DateTime.Compare(now, startTime) > packet.getMaxTime())
+                    if (Math.TimeBetween(packet.startTime,now) > 1)
                     {
                         packetsToWrite.RemoveAt(i);
                         i--;
@@ -306,11 +314,12 @@ namespace SupaStuff.Net.Shared
                     HandleIncomingPacket(packet);
                 }
 
-                if (!isServer && DateTime.Compare(now, lastCheckedIn) > 5000)
+                if (!isServer && Math.TimeBetween(lastCheckedIn,now) > 5)
                 {
                     packetsToWrite.Insert(0, new YesImHerePacket());
+                    lastCheckedIn = DateTime.UtcNow;
                 }
-                if (isServer && DateTime.Compare(now, lastCheckedIn) > MaxUncheckedTime)
+                if (isServer && Math.TimeBetween(lastCheckedIn,now) > MaxUncheckedTime)
                 {
                     Dispose();
                 }

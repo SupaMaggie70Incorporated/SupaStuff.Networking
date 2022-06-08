@@ -38,9 +38,9 @@ namespace SupaStuff.Net.ServerSide
             GetHost();
             listener = new TcpListener(host, port);
             StartListening();
-            Console.WriteLine("Server started");
+            Main.ServerLogger.log("Server started");
             listener.BeginAcceptTcpClient(new System.AsyncCallback(ClientConnected), null);
-            Console.WriteLine("Accepting tcp client");
+            Main.ServerLogger.log("Accepting tcp client");
             localConnection = ClientConnection.LocalClient();
             connections.Add(localConnection);
             Main.NetLogger.log("Server started!");
