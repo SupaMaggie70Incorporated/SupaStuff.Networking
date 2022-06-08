@@ -14,7 +14,6 @@ namespace SupaStuff.Net.Packets.BuiltIn
         }
         public override void Execute(ClientConnection sender)
         {
-            sender.lastCheckedIn = DateTime.Now;
         }
         public YesImHerePacket() : base(null)
         {
