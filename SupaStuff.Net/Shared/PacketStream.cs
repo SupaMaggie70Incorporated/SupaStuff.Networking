@@ -45,7 +45,14 @@ namespace SupaStuff.Net.Shared
         /// </summary>
         private void onError()
         {
-            isRunning = customOnError();
+            try
+            {
+                customOnError();
+            }
+            catch
+            {
+
+            }
         }
         /// <summary>
         /// Tries to recieve a packet, if it can't recieve the whole thing saves what it did get to variables to be continued later
@@ -130,9 +137,9 @@ namespace SupaStuff.Net.Shared
         /// <param name="packet"></param>
         public void HandleIncomingPacket(Packet packet)
         {
-            packetsToHandle.Remove(packet);
-            try
-            {
+            try 
+            { 
+                packetsToHandle.Remove(packet);
                 if (!builtinPackets.Contains(packet.GetType()))
                 {
                     RecievePacketEvent(packet);
@@ -265,43 +272,50 @@ namespace SupaStuff.Net.Shared
         /// </summary>
         public void Update()
         {
-            DateTime now = DateTime.UtcNow;
-            //Remove old packets
-            
-            for (int i = 0; i < packetsToWrite.Count; i++)
+            try
             {
-                Packet packet = packetsToWrite[i];
-                DateTime startTime = packet.startTime;
-                if (DateTime.Compare(now,startTime) > packet.getMaxTime())
+                DateTime now = DateTime.UtcNow;
+                //Remove old packets
+
+                for (int i = 0; i < packetsToWrite.Count; i++)
                 {
-                    packetsToWrite.RemoveAt(i);
-                    i--;
+                    Packet packet = packetsToWrite[i];
+                    DateTime startTime = packet.startTime;
+                    if (DateTime.Compare(now, startTime) > packet.getMaxTime())
+                    {
+                        packetsToWrite.RemoveAt(i);
+                        i--;
+                    }
+                }
+
+
+
+                //Check for new packets to recieve
+                CheckForPackets();
+
+                //Start sending a packet if you can
+                if (!sendingPacket && packetsToWrite.Count > 0)
+                {
+                    StartSendPacket();
+                }
+
+                //Handle incoming packets
+                Packet[] packets = packetsToHandle.ToArray();
+                foreach (Packet packet in packets)
+                {
+                    HandleIncomingPacket(packet);
+                }
+
+                if (!isServer && DateTime.Compare(now, lastCheckedIn) > 5000)
+                {
+                    packetsToWrite.Insert(0, new YesImHerePacket());
+                }
+                if (isServer && DateTime.Compare(now, lastCheckedIn) > MaxUncheckedTime)
+                {
+                    Dispose();
                 }
             }
-            
-
-
-            //Check for new packets to recieve
-            CheckForPackets();
-
-            //Start sending a packet if you can
-            if(!sendingPacket && packetsToWrite.Count > 0)
-            {
-                StartSendPacket();
-            }
-
-            //Handle incoming packets
-            Packet[] packets = packetsToHandle.ToArray();
-            foreach(Packet packet in packets)
-            {
-                HandleIncomingPacket(packet);
-            }
-
-            if(!isServer && DateTime.Compare(now,lastCheckedIn) > 5000)
-            {
-                packetsToWrite.Insert(0, new YesImHerePacket());
-            }
-            if (isServer && DateTime.Compare(now, lastCheckedIn) > MaxUncheckedTime)
+            catch
             {
                 Dispose();
             }
@@ -346,8 +360,17 @@ namespace SupaStuff.Net.Shared
             }
             try
             {
-                packet.startTime = DateTime.UtcNow;
-                packetsToWrite.Add(packet);
+                if (builtinPackets.Contains(packetType))
+                {
+                    packet.startTime = DateTime.UtcNow;
+                    packetsToWrite.Insert(0, packet);
+                    return;
+                }
+                else
+                {
+                    packet.startTime = DateTime.UtcNow;
+                    packetsToWrite.Add(packet);
+                }
             }catch
             {
 

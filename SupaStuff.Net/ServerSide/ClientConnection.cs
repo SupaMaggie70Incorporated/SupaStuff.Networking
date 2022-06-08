@@ -20,6 +20,9 @@ namespace SupaStuff.Net.ServerSide
         protected HandshakeStage handshakeStage = HandshakeStage.unstarted;
         public PacketStream packetStream;
         public IPAddress address;
+
+        internal DateTime connectionStarted;
+        internal bool finishAuth = false;
         public ClientConnection(IAsyncResult ar)
         {
             tcpClient = Server.Instance.listener.EndAcceptTcpClient(ar);
@@ -33,6 +36,7 @@ namespace SupaStuff.Net.ServerSide
             packetStream.clientConnection = this;
             packetStream.OnDisconnected += Dispose;
             address = (tcpClient.Client.RemoteEndPoint as IPEndPoint).Address;
+            connectionStarted = DateTime.UtcNow;
         }
         protected ClientConnection()
         {
@@ -55,6 +59,12 @@ namespace SupaStuff.Net.ServerSide
         public virtual void Update()
         {
             packetStream.Update();
+            if(!finishAuth)
+            {
+                if (DateTime.Compare(DateTime.UtcNow, connectionStarted) > 5000) ) {
+                    Dispose();
+                }
+            }
         }
         /// <summary>
         /// Kick the client from the server with a message

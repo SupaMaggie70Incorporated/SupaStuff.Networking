@@ -18,6 +18,7 @@ namespace SupaStuff.Net.ServerSide
         public bool IsActive = true;
         public LocalClientConnection localConnection;
         public List<ClientConnection> connections;
+        public int maxConnections = 8;
         public static void GetHost()
         {
             var hosts = Dns.GetHostEntry(Dns.GetHostName());    
@@ -30,9 +31,10 @@ namespace SupaStuff.Net.ServerSide
                 }
             }
         }
-        public Server()
+        public Server(int maxConnections)
         {
-            connections = new List<ClientConnection>(1024);
+            connections = new List<ClientConnection>(maxConnections);
+            this.maxConnections = maxConnections;
             GetHost();
             listener = new TcpListener(host, port);
             StartListening();
@@ -76,8 +78,15 @@ namespace SupaStuff.Net.ServerSide
             try
             {
                 ClientConnection connection = new ClientConnection(listener.EndAcceptTcpClient(ar));
-                connections.Add(connection);
-                ClientConnectedEvent(connection);
+                if (connections.Count < maxConnections)
+                {
+                    connections.Add(connection);
+                    ClientConnectedEvent(connection);
+                }
+                else
+                {
+                    connection.Dispose();
+                }
                 listener.BeginAcceptTcpClient(new System.AsyncCallback(ClientConnected), null);
             }catch
             {

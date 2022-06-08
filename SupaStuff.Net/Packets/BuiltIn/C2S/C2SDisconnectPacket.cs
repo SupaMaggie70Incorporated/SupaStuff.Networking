@@ -5,7 +5,7 @@ using System.Text;
 
 namespace SupaStuff.Net.Packets.BuiltIn
 {
-    [APacket(-5662131, false)]
+    [APacket(-5662131, false,false)]
     internal sealed class C2SDisconnectPacket : Packet
     {
         public string message;

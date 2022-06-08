@@ -3,24 +3,26 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace SupaStuff.Net.Packets.BuiltIn
+namespace SupaStuff.Net.Packets.BuiltIn.C2S
 {
-    [APacket(-194752,false,false)]
-    internal class YesImHerePacket : Packet
+    [APacket(-538927,false,false)]
+    internal class C2SWelcomePacket : Packet
     {
         public override byte[] Bytify()
         {
-            return base.Bytify();
+            return new byte[0];
         }
         public override void Execute(ClientConnection sender)
         {
+            sender.finishAuth = true;
         }
-        public YesImHerePacket() : base(null)
+        public C2SWelcomePacket() : base(null)
         {
 
         }
-        public YesImHerePacket(byte[] bytes) : base(null)
+        public C2SWelcomePacket(byte[] bytes) : base(null)
         {
+
         }
     }
 }
