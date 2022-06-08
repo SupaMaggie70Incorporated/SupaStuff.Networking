@@ -31,7 +31,7 @@ namespace SupaStuff.Net.Example
         {
             Console.WriteLine("Initiating Scarry Black Window....");
             
-            testServer = new Server();
+            testServer = new Server(4);
             /*
             testServer.OnClientConnected += (ClientConnection conn) => {
                 conn.SendPacket(new ExamplePacket2());
