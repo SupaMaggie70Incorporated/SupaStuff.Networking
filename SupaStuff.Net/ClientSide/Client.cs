@@ -8,6 +8,7 @@ using System.Net;
 using SupaStuff.Net.ServerSide;
 using SupaStuff.Net.Shared;
 using SupaStuff.Net.Packets;
+using SupaStuff.Net.Packets.BuiltIn;
 
 namespace SupaStuff.Net.ClientSide
 {

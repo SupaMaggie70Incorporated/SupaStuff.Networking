@@ -35,7 +35,7 @@ namespace SupaStuff.Net.ServerSide
             connections = new List<ClientConnection>(1024);
             GetHost();
             listener = new TcpListener(host, port);
-            listener.Start();
+            StartListening();
             Console.WriteLine("Server started");
             listener.BeginAcceptTcpClient(new System.AsyncCallback(ClientConnected), null);
             Console.WriteLine("Accepting tcp client");
@@ -43,18 +43,32 @@ namespace SupaStuff.Net.ServerSide
             connections.Add(localConnection);
             Main.NetLogger.log("Server started!");
         }
+        public void StartListening()
+        {
+            listener.Start();
+        }
+        public void StopListening()
+        {
+            listener.Stop();
+        }
 
         public void Update()
         {
-            for(int i = 0;i < connections.Count;i++)
+            for (int i = 0; i < connections.Count; i++)
             {
                 ClientConnection connection = connections[i];
-                if(connection == null)
+                if (connection == null)
                 {
                     i--;
                     connections.RemoveAt(i);
                 }
-                connection.Update();
+                try { 
+                    connection.Update();
+                }
+                catch
+                {
+                    connection.Dispose();
+                }
             }
         }
         private void ClientConnected(System.IAsyncResult ar)
@@ -97,11 +111,26 @@ namespace SupaStuff.Net.ServerSide
             if (OnClientConnected == null) return;
             OnClientConnected.Invoke(connection);
         }
-        public void SendToAll(Packet packet) 
+        public void SendToAll(Packet packet)
+        { 
+            foreach(ClientConnection connection in connections) 
+            {
+                connection.SendPacket(packet);
+            }
+        }
+        public void Kick(ClientConnection connection,string message)
         {
-        foreach(ClientConnection connection in connections) {
-connections.SendPacket(packet);
-}
+            connection.Kick(message);
+        }
+        public void Kick(ClientConnection connection)
+        {
+            connection.Dispose();
+        }
+        public LocalClientConnection MakeLocalConnection()
+        {
+            LocalClientConnection connection = LocalClientConnection.LocalClient();
+            connections.Add(connection);
+            return connection;
         }
 
     }

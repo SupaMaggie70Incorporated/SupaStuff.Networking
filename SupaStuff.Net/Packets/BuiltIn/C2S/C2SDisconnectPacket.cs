@@ -3,7 +3,7 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace SupaStuff.Net.Packets
+namespace SupaStuff.Net.Packets.BuiltIn
 {
     [APacket(-1, false)]
     internal sealed class C2SDisconnectPacket : Packet

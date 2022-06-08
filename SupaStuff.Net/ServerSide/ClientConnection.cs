@@ -7,6 +7,7 @@ using System.Net.Sockets;
 using System.Net;
 using SupaStuff.Net.Shared;
 using SupaStuff.Net.Packets;
+using SupaStuff.Net.Packets.BuiltIn;
 namespace SupaStuff.Net.ServerSide
 {
     public class ClientConnection : IDisposable

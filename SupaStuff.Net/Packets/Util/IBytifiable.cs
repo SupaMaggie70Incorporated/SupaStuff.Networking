@@ -9,7 +9,7 @@ namespace SupaStuff.Net.Packets.Util
     /// <summary>
     /// The abstract class for bytifiable objects, such as packets, to ease the coding difficulty
     /// </summary>
-    public abstract class IBytifiable
+    internal abstract class IBytifiable
     {
         public virtual byte[] Bytify()
         {

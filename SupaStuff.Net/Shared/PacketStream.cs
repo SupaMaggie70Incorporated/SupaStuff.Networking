@@ -7,8 +7,12 @@ using System.Threading;
 using SupaStuff.Core;
 using SupaStuff.Core.Util;
 using System.Net;
+
+using System.Reflection;
+
 using System.Net.Sockets;
 using SupaStuff.Net.Packets;
+using SupaStuff.Net.Packets.BuiltIn;
 namespace SupaStuff.Net.Shared
 {
     public class PacketStream : IDisposable
@@ -22,6 +26,11 @@ namespace SupaStuff.Net.Shared
         private List<Packet> packetsToHandle = new List<Packet>(1024);
         private bool sendingPacket = false;
         public Packet currentSentPacket;
+
+        //Server only
+        internal DateTime lastCheckedIn = DateTime.UtcNow;
+        public static readonly int MaxUncheckedTime = 10000;
+
         #region Packet buffer
 
         bool packetHeaderComplete = false;
@@ -37,10 +46,6 @@ namespace SupaStuff.Net.Shared
         private void onError()
         {
             isRunning = customOnError();
-            if (!isRunning)
-            {
-                Dispose();
-            }
         }
         /// <summary>
         /// Tries to recieve a packet, if it can't recieve the whole thing saves what it did get to variables to be continued later
@@ -113,6 +118,12 @@ namespace SupaStuff.Net.Shared
                 else break;
             }
         }
+        private static readonly Type[] builtinPackets = new Type[]
+        {
+            typeof(C2SDisconnectPacket),
+            typeof(S2CKickPacket),
+            typeof(YesImHerePacket)
+        };
         /// <summary>
         /// Called when a packet is recieved, to execute the packet's code and whatnot
         /// </summary>
@@ -122,7 +133,10 @@ namespace SupaStuff.Net.Shared
             packetsToHandle.Remove(packet);
             try
             {
-                RecievePacketEvent(packet);
+                if (!builtinPackets.Contains(packet.GetType()))
+                {
+                    RecievePacketEvent(packet);
+                }
                 packet.Execute(clientConnection);
             }
             catch
@@ -140,9 +154,19 @@ namespace SupaStuff.Net.Shared
         /// <returns></returns>
         private Packet FinishRecievePacket()
         {
-            Packet packet = Packet.GetPacket(packetID, packetBody, !isServer);
-            PacketCleanup();
-            return packet;
+            try
+            {
+                Packet packet = Packet.GetPacket(packetID, packetBody, !isServer);
+                PacketCleanup();
+                if(isServer) lastCheckedIn = DateTime.UtcNow;
+                return packet;
+            }
+            catch
+            {
+                onError();
+                Dispose();
+                return null;
+            }
 
         }
         /// <summary>
@@ -205,11 +229,13 @@ namespace SupaStuff.Net.Shared
                     stream.EndWrite(ar);
                     if(currentSentPacket.GetType() == typeof(S2CKickPacket))
                     {
+                        onError();
                         Dispose();
                         return;
                     }
                     else if(currentSentPacket.GetType() == typeof(C2SDisconnectPacket))
                     {
+                        onError();
                         Dispose();
                     }
                     if (packetsToWrite.Count > 0)
@@ -221,6 +247,10 @@ namespace SupaStuff.Net.Shared
                         sendingPacket = false;
                         currentSentPacket = null;
                     }
+                }
+                if (!isServer)
+                {
+                    lastCheckedIn = DateTime.Now;
                 }
             }catch
             {
@@ -235,21 +265,22 @@ namespace SupaStuff.Net.Shared
         /// </summary>
         public void Update()
         {
-            /*
-            long time = DateTime.UtcNow.Ticks;
+            DateTime now = DateTime.UtcNow;
             //Remove old packets
             
             for (int i = 0; i < packetsToWrite.Count; i++)
             {
                 Packet packet = packetsToWrite[i];
-                long ticks = packet.startTime.Ticks;
-                if (time - ticks > packet.getMaxTime())
+                DateTime startTime = packet.startTime;
+                if (DateTime.Compare(now,startTime) > packet.getMaxTime())
                 {
                     packetsToWrite.RemoveAt(i);
                     i--;
                 }
             }
-            */
+            
+
+
             //Check for new packets to recieve
             CheckForPackets();
 
@@ -265,7 +296,15 @@ namespace SupaStuff.Net.Shared
             {
                 HandleIncomingPacket(packet);
             }
-            
+
+            if(!isServer && DateTime.Compare(now,lastCheckedIn) > 5000)
+            {
+                packetsToWrite.Insert(0, new YesImHerePacket());
+            }
+            if (isServer && DateTime.Compare(now, lastCheckedIn) > MaxUncheckedTime)
+            {
+                Dispose();
+            }
         }
         /// <summary>
         /// Called to ease up the Garbage collection by disposing manually
@@ -280,6 +319,19 @@ namespace SupaStuff.Net.Shared
         /// <param name="packet"></param>
         public void SendPacket(Packet packet)
         {
+            Type packetType = packet.GetType();
+            APacket attribute = packetType.GetCustomAttribute<APacket>();
+            if(!attribute.allowDuplicates)
+            {
+                foreach(Packet _packet in packetsToWrite)
+                {
+                    if(_packet.GetType() == packetType)
+                    {
+                        _packet.startTime = DateTime.UtcNow;
+                        return;
+                    }
+                }
+            }
             if (packetsToWrite.Count + 1 == packetsToWrite.Capacity)
             {
                 //Too many packets in queue!
