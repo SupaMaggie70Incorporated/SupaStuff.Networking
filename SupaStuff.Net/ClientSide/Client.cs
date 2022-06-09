@@ -54,14 +54,12 @@ namespace SupaStuff.Net.ClientSide
             SendPacket(new C2SWelcomePacket());
             //packetStream.SendPacket(new C2SWelcomePacket());
             Main.ClientLogger.log("Client started!");
-
         }
-        [Obsolete]
         /// <summary>
         /// Create a local client connection
         /// </summary>
         /// <param name="localconnection"></param>
-        public Client(LocalClientConnection localconnection)
+        internal Client(LocalClientConnection localconnection)
         {
             //Local client
             this.IsLocal = true;
@@ -102,6 +100,7 @@ namespace SupaStuff.Net.ClientSide
         public void Dispose()
         {
             if (!IsActive) return;
+            DisconnectEvent();
             IsActive = false;
             Main.ClientLogger.log("Client closed!");
             Instance = null;
@@ -133,5 +132,10 @@ namespace SupaStuff.Net.ClientSide
         {
             Dispose();
         }
+        private void DisconnectEvent()
+        {
+            if(OnDisconnect != null) OnDisconnect();
+        }
+        public event Action OnDisconnect;
     }
 }
