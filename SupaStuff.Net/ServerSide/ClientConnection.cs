@@ -41,7 +41,7 @@ namespace SupaStuff.Net.ServerSide
         protected ClientConnection()
         {
         }
-        public static LocalClientConnection LocalClient()
+        internal static LocalClientConnection LocalClient()
         {
             return LocalClientConnection.LocalClient();
         }
@@ -77,6 +77,14 @@ namespace SupaStuff.Net.ServerSide
             if (!IsActive) return;
             IsActive = false;
             Main.ServerLogger.log("Connection to client " + address + " terminated");
+            try
+            {
+                Server.Instance.connections.Remove(this);
+            }
+            catch
+            {
+
+            }
             if (IsLocal)
             {
             }

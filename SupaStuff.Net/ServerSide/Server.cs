@@ -137,6 +137,7 @@ namespace SupaStuff.Net.ServerSide
         }
         public LocalClientConnection MakeLocalConnection()
         {
+            if (connections.Count + 1== maxConnections) return null;
             LocalClientConnection connection = LocalClientConnection.LocalClient();
             connections.Add(connection);
             return connection;
