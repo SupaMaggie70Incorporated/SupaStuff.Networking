@@ -11,6 +11,8 @@ namespace SupaStuff.Net.Packets.Util
         public static Dictionary<int, Type> s2ctypes;
         public static Dictionary<int, Func<byte[], Packet>> c2sConstructors;
         public static Dictionary<int, Func<byte[],Packet>> s2cConstructors;
+        public static Dictionary<int, Func<int, bool>> c2sSizeMatches;
+        public static Dictionary<int, Func<int, bool>> s2cSizeMatches;
         /// <summary>
         /// Gets the classes with the APacket attribute to add to a list, for easier encoding and decoding
         /// </summary>
@@ -20,6 +22,8 @@ namespace SupaStuff.Net.Packets.Util
             s2ctypes = new Dictionary<int, Type>();
             c2sConstructors = new Dictionary<int, Func<byte[], Packet>>();
             s2cConstructors = new Dictionary<int, Func<byte[], Packet>>();
+            c2sSizeMatches = new Dictionary<int, Func<int, bool>>();
+            s2cSizeMatches = new Dictionary<int, Func<int, bool>>();
             Type[] types =  TypeFinder.ReGetTypes();
             foreach (Type type in types)
             {
@@ -36,6 +40,7 @@ namespace SupaStuff.Net.Packets.Util
                         ConstructorInfo constructorInfo = type.GetConstructor(new Type[] { typeof(byte[]) });
                         Func<byte[], Packet> func = (byte[] bytes) => constructorInfo.Invoke(new object[] { bytes }) as Packet;
                         s2cConstructors.Add(property.PacketID, func);
+                        s2cSizeMatches.Add(property.PacketID,property.func);
                     }
                     else
                     {
@@ -47,6 +52,8 @@ namespace SupaStuff.Net.Packets.Util
                         ConstructorInfo constructorInfo = type.GetConstructor(new Type[] { typeof(byte[]) });
                         Func<byte[], Packet> func = (byte[] bytes) => constructorInfo.Invoke(new object[] { bytes }) as Packet;
                         c2sConstructors.Add(property.PacketID, func);
+                        c2sSizeMatches.Add(property.PacketID, property.func);
+
                     }
                 }
             }

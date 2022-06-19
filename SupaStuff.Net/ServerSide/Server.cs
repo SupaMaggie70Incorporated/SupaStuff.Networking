@@ -19,6 +19,7 @@ namespace SupaStuff.Net.ServerSide
         public LocalClientConnection localConnection;
         public List<ClientConnection> connections;
         public int maxConnections = 8;
+        public static byte[] password;
         public static void GetHost()
         {
             var hosts = Dns.GetHostEntry(Dns.GetHostName());    
@@ -127,14 +128,27 @@ namespace SupaStuff.Net.ServerSide
                 connection.SendPacket(packet);
             }
         }
+        /// <summary>
+        /// Kick someone, after sending packet with the message
+        /// </summary>
+        /// <param name="connection"></param>
+        /// <param name="message"></param>
         public void Kick(ClientConnection connection,string message)
         {
             connection.Kick(message);
         }
+        /// <summary>
+        /// Instantly kick someone
+        /// </summary>
+        /// <param name="connection"></param>
         public void Kick(ClientConnection connection)
         {
             connection.Dispose();
         }
+        /// <summary>
+        /// Create a new local connection to the server
+        /// </summary>
+        /// <returns></returns>
         public LocalClientConnection MakeLocalConnection()
         {
             if (connections.Count + 1== maxConnections) return null;
