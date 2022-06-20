@@ -61,10 +61,13 @@ namespace SupaStuff.Net.ServerSide
             for (int i = 0; i < connections.Count; i++)
             {
                 ClientConnection connection = connections[i];
-                if (connection == null)
+                if (connection == null || !IsActive)
                 {
-                    i--;
+                    connections[i].IsActive = false;
+                    connections[i].Dispose();
                     connections.RemoveAt(i);
+                    i--;
+                    continue;
                 }
                 try { 
                     connection.Update();
@@ -80,6 +83,7 @@ namespace SupaStuff.Net.ServerSide
             try
             {
                 ClientConnection connection = new ClientConnection(listener.EndAcceptTcpClient(ar));
+                Main.ServerLogger.log("Attempted connection from " + connection.address + "!");
                 if (connections.Count + 1 < maxConnections)
                 {
                     connections.Add(connection);

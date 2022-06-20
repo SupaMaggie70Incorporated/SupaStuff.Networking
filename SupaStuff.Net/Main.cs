@@ -25,11 +25,11 @@ namespace SupaStuff.Net
         {
             if(ServerSide.Server.Instance != null)
             {
-                ServerSide.Server.Instance.Update();
+                //ServerSide.Server.Instance.Update();
             }
             if(ClientSide.Client.Instance != null)
             {
-                ClientSide.Client.Instance.Update();
+                //ClientSide.Client.Instance.Update();
             }
         }
     }
