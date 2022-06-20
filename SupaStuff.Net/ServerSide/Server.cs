@@ -39,7 +39,7 @@ namespace SupaStuff.Net.ServerSide
             connections = new List<ClientConnection>(maxConnections);
             GetHost();
             listener = new TcpListener(host, port);
-            StartListening();
+            //StartListening();
             Main.ServerLogger.log("Server started");
             listener.BeginAcceptTcpClient(new System.AsyncCallback(ClientConnected), null);
             Main.ServerLogger.log("Accepting tcp client");
