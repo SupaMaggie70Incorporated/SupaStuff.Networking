@@ -35,6 +35,7 @@ namespace SupaStuff.Net.ServerSide
         }
         public Server(int maxConnections)
         {
+            Instance = this;
             this.maxConnections = maxConnections;
             connections = new List<ClientConnection>(maxConnections);
             GetHost();

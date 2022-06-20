@@ -58,10 +58,12 @@ namespace SupaStuff.Net.ServerSide
         }
         public virtual void Update()
         {
+            if (!IsActive) Console.WriteLine("Wait, why am I still being updated?");
             packetStream.Update();
-            if(!finishAuth)
+            if (!finishAuth)
             {
                 if (Math.TimeSince(connectionStarted) > 10) {
+                    Main.ServerLogger.log("Shutting down connection to " + address + " because they were unable to authorize themselves");
                     Dispose();
                 }
             }

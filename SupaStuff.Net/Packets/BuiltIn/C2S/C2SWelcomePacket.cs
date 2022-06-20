@@ -11,13 +11,14 @@ namespace SupaStuff.Net.Packets.BuiltIn
         public byte[] bytes;
         public override byte[] Bytify()
         {
-            return new byte[0];
+            return bytes;
         }
         public override void Execute(ClientConnection sender)
         {
             if(Math.ByteArraysEqual(bytes,Server.password))
             {
                 sender.finishAuth = true;
+                Main.ServerLogger.log(sender.address + " finished authorizing!");
             }
             else
             {
@@ -30,7 +31,7 @@ namespace SupaStuff.Net.Packets.BuiltIn
         }
         public C2SWelcomePacket(byte[] bytes) : base(null)
         {
-            bytes = bytes;
+            this.bytes = bytes;
         }
     }
 }
