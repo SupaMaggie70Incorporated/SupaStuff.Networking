@@ -4,7 +4,7 @@ using System.Text;
 
 namespace SupaStuff.Net
 {
-    internal class Math
+    public class Math
     {
         public static double TimeSince(DateTime time)
         {
