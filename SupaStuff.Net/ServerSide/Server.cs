@@ -80,7 +80,7 @@ namespace SupaStuff.Net.ServerSide
             try
             {
                 ClientConnection connection = new ClientConnection(listener.EndAcceptTcpClient(ar));
-                if (connections.Count < maxConnections)
+                if (connections.Count + 1 < maxConnections)
                 {
                     connections.Add(connection);
                     ClientConnectedEvent(connection);
@@ -88,6 +88,7 @@ namespace SupaStuff.Net.ServerSide
                 else
                 {
                     connection.Dispose();
+                    Main.ServerLogger.log("Rejected connection from " + connection.address + " because we already have the max number of concurrent connections, " + maxConnections + "!");
                 }
                 listener.BeginAcceptTcpClient(new System.AsyncCallback(ClientConnected), null);
             }catch
