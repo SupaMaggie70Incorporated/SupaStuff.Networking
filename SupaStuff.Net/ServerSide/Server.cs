@@ -27,6 +27,7 @@ namespace SupaStuff.Net.ServerSide
             {
                 if (ip.AddressFamily == AddressFamily.InterNetwork)
                 {
+                    Console.WriteLine("Host is " + host.ToString() + ":" + port.ToString());
                     host = ip;
                     return;
                 }
@@ -34,8 +35,8 @@ namespace SupaStuff.Net.ServerSide
         }
         public Server(int maxConnections)
         {
-            connections = new List<ClientConnection>(maxConnections);
             this.maxConnections = maxConnections;
+            connections = new List<ClientConnection>(maxConnections);
             GetHost();
             listener = new TcpListener(host, port);
             StartListening();
