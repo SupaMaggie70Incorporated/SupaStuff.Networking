@@ -27,8 +27,8 @@ namespace SupaStuff.Net.ServerSide
             {
                 if (ip.AddressFamily == AddressFamily.InterNetwork)
                 {
-                    Console.WriteLine("Host is " + host.ToString() + ":" + port.ToString());
                     host = ip;
+                    Console.WriteLine("Host is " + host.ToString() + ":" + port.ToString());
                     return;
                 }
             }
