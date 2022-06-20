@@ -11,7 +11,7 @@ namespace SupaStuff.Net.ServerSide
 {
     public class Server : IDisposable
     {
-        public static Server Instance;
+        public static Server Instance = null;
         public TcpListener listener;
         public static IPAddress host;
         public static int port = 12345;

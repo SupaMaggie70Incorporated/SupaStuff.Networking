@@ -16,7 +16,7 @@ namespace SupaStuff.Net.ClientSide
     {
         private TcpClient tcpClient;
         private NetworkStream stream;
-        public static Client Instance;
+        public static Client Instance = null;
         public bool IsLocal;
         public bool IsActive;
         public LocalClientConnection localConnection;

@@ -11,7 +11,7 @@ namespace SupaStuff.Net.Shared
     public class UpdateThread : IDisposable
     {
         public static UpdateThread Instance;
-        private bool running = true;
+        private bool running;
         public int updateInterval;
         public Timer timer;
         public static UpdateThread MakeUpdateThread(int updateInterval)
@@ -30,6 +30,7 @@ namespace SupaStuff.Net.Shared
             timer = new Timer(updateInterval);
             timer.Elapsed += Update;
             timer.AutoReset = true;
+            Start();
         }
         public void Start()
         {
