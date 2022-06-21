@@ -62,9 +62,14 @@ namespace SupaStuff.Net.ServerSide
             for (int i = 0; i < connections.Count; i++)
             {
                 ClientConnection connection = connections[i];
-                if (connection == null || !IsActive)
+                if(connection == null)
                 {
-                    connections[i].IsActive = false;
+                    connections.RemoveAt(i);
+                    i--;
+                }
+                else if(!IsActive)
+                {
+                    Main.ServerLogger.log("Kicking " + connection.address + " because they should've already been kicked");
                     connections[i].Dispose();
                     connections.RemoveAt(i);
                     i--;
@@ -75,6 +80,7 @@ namespace SupaStuff.Net.ServerSide
                 }
                 catch
                 {
+                    Main.ServerLogger.log("Kicking " + connection + " because they were unable to update properly");
                     connection.Dispose();
                 }
             }
@@ -110,6 +116,7 @@ namespace SupaStuff.Net.ServerSide
             {
                 try
                 {
+                    Main.ServerLogger.log("Closing connection to " + connection.address + " because we are shutting down the server");
                     connection.Dispose();
                 }
                 catch
@@ -142,6 +149,7 @@ namespace SupaStuff.Net.ServerSide
         /// <param name="message"></param>
         public void Kick(ClientConnection connection,string message)
         {
+            Main.NetLogger.log("Kicking " + connection.address + " for reason: " + message);
             connection.Kick(message);
         }
         /// <summary>
@@ -150,6 +158,7 @@ namespace SupaStuff.Net.ServerSide
         /// <param name="connection"></param>
         public void Kick(ClientConnection connection)
         {
+            Main.ServerLogger.log("Kicking " + connection.address + " because we want to kick him idk");
             connection.Dispose();
         }
         /// <summary>

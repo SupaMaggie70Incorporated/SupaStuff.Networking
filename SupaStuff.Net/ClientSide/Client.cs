@@ -108,7 +108,11 @@ namespace SupaStuff.Net.ClientSide
             tcpClient.Close();
             tcpClient.Dispose();
             packetStream.Dispose();
-            if(IsLocal) localConnection.Dispose();
+            if (IsLocal)
+            {
+                localConnection.Dispose();
+                Main.ClientLogger.log("Closing client and its corresponding local connection!");
+            }
         }
         public void Disconnect()
         {

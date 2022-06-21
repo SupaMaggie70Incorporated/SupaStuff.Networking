@@ -34,7 +34,10 @@ namespace SupaStuff.Net.ServerSide
             stream = tcpClient.GetStream();
             packetStream = new PacketStream(stream, true, () => false);
             packetStream.clientConnection = this;
-            packetStream.OnDisconnected += Dispose;
+            packetStream.OnDisconnected += () => {
+                Main.ServerLogger.log("Kicking " + address + " because they kicked us first and we're mad");
+                Dispose();
+            } ;
             address = (tcpClient.Client.RemoteEndPoint as IPEndPoint).Address;
             connectionStarted = DateTime.UtcNow;
         }
