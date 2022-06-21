@@ -49,8 +49,9 @@ namespace SupaStuff.Net.ClientSide
             tcpClient.Connect(new IPEndPoint(ip, Server.port));
             //Get the stream
             stream = tcpClient.GetStream();
-            packetStream = new PacketStream(stream, false, () => { Dispose();return false; });
-            packetStream.OnDisconnected += Dispose;
+            packetStream = new PacketStream(stream, false, () => { Main.ClientLogger.log("Disconnecting because we ran into an undisclosed network error"); Dispose();return false; });
+            packetStream.OnDisconnected += () => { Main.ClientLogger.log("Disconnected because of network error/server kicking us"); Dispose(); };
+            packetStream.logger = Main.ClientLogger;
             Main.ClientLogger.log("Client started!");
             SendPacket(new C2SWelcomePacket());
         }
@@ -89,7 +90,11 @@ namespace SupaStuff.Net.ClientSide
             {
                 packetStream.Update();
             }
-            if(!tcpClient.Connected) Dispose();
+            if (!tcpClient.Connected)
+            {
+                Main.ClientLogger.log("Disonnected because the tcpclient was not connected?");
+                Dispose();
+            }
         }
         public delegate void OnMessage(Packet packet);
         public event OnMessage onMessage;
@@ -110,29 +115,24 @@ namespace SupaStuff.Net.ClientSide
             packetStream.Dispose();
             if (IsLocal)
             {
-                localConnection.Dispose();
                 Main.ClientLogger.log("Closing client and its corresponding local connection!");
+                localConnection.Dispose();
             }
         }
         public void Disconnect()
         {
-            lock (packetStream.packetsToWrite)
-            {
-                packetStream.packetsToWrite.Clear();
-                packetStream.packetsToWrite.Add(new C2SDisconnectPacket());
-            }
+            packetStream.packetsToWrite.Clear();
+            packetStream.packetsToWrite.Add(new C2SDisconnectPacket());
 
         }
         public void Disconnect(string message)
         {
-            lock (packetStream.packetsToWrite)
-            {
-                packetStream.packetsToWrite.Clear();
-                packetStream.packetsToWrite.Add(new C2SDisconnectPacket(message));
-            }
+            packetStream.packetsToWrite.Clear();
+            packetStream.packetsToWrite.Add(new C2SDisconnectPacket(message));
         }
         public void HardDisconnect()
         {
+            Main.ClientLogger.log("Hard disconnecting");
             Dispose();
         }
         private void DisconnectEvent()

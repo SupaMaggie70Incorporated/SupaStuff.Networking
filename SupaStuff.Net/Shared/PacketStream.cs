@@ -26,7 +26,7 @@ namespace SupaStuff.Net.Shared
         private List<Packet> packetsToHandle = new List<Packet>(1024);
         private bool sendingPacket = false;
         public Packet currentSentPacket;
-
+        public Logger logger = Main.NetLogger;
         //Server only
         internal DateTime lastCheckedIn = DateTime.UtcNow;
         public static readonly int MaxUncheckedTime = 10;
@@ -105,6 +105,7 @@ namespace SupaStuff.Net.Shared
                 }
             }catch
             {
+                logger.log("Error recieving packet, disconnecting");
                 onError();
                 Dispose();
                 return false;
@@ -143,6 +144,8 @@ namespace SupaStuff.Net.Shared
                 Type type = packet.GetType();
                 if(isServer && !clientConnection.finishAuth && type != typeof(C2SWelcomePacket))
                 {
+                    logger.log("We recieved a packet other than the C2SWelcomePacket as our first packet, so fuck off hacker");
+                    onError();
                     Dispose();
                     return;
                 }
@@ -157,6 +160,7 @@ namespace SupaStuff.Net.Shared
             {
                 if (this != null)
                 {
+                    logger.log("We had issues handling a packet, so we're gonna commit die");
                     onError();
                     Dispose();
                 }
@@ -177,6 +181,7 @@ namespace SupaStuff.Net.Shared
             }
             catch
             {
+                logger.log("Failed to complete the packet");
                 onError();
                 Dispose();
                 return null;
@@ -211,21 +216,19 @@ namespace SupaStuff.Net.Shared
         /// <summary>
         /// Begin asynchronous sending of packet queue
         /// </summary>
-        private void StartSendPacket()
+        private void BeginSendPacket()
         {
             try
             {
-                lock (packetsToWrite)
-                {
-                    sendingPacket = true;
-                    Packet packet = packetsToWrite[0];
-                    packetsToWrite.RemoveAt(0);
-                    currentSentPacket = packet;
-                    byte[] bytes = Packet.EncodePacket(packet);
-                    stream.BeginWrite(bytes, 0, bytes.Length, new AsyncCallback(EndSendPacket), null);
-                }
+                sendingPacket = true;
+                Packet packet = packetsToWrite[0];
+                packetsToWrite.RemoveAt(0);
+                currentSentPacket = packet;
+                byte[] bytes = Packet.EncodePacket(packet);
+                stream.BeginWrite(bytes, 0, bytes.Length, new AsyncCallback(EndSendPacket), null);
             }catch
             {
+                logger.log("We had an error sending a packet(BeginSendPacket), potentially due to unsafe threading, if you encounter this and it does not happen consistently tell SupaMaggie70 because its kinda weird");
                 onError();
                 Dispose();
             }
@@ -239,36 +242,37 @@ namespace SupaStuff.Net.Shared
             lastCheckedIn = DateTime.UtcNow;
             try
             {
-                lock (packetsToWrite)
+                stream.EndWrite(ar);
+                if(currentSentPacket.GetType() == typeof(S2CKickPacket))
                 {
-                    stream.EndWrite(ar);
-                    if(currentSentPacket.GetType() == typeof(S2CKickPacket))
-                    {
-                        onError();
-                        Dispose();
-                        return;
-                    }
-                    else if(currentSentPacket.GetType() == typeof(C2SDisconnectPacket))
-                    {
-                        onError();
-                        Dispose();
-                    }
-                    if (packetsToWrite.Count > 0)
-                    {
-                        StartSendPacket();
-                    }
-                    else
-                    {
-                        sendingPacket = false;
-                        currentSentPacket = null;
-                    }
+                    logger.log("We disconnected because we sent a kick packet and theyre no longer welcome");
+                    onError();
+                    Dispose();
+                    return;
                 }
+                else if(currentSentPacket.GetType() == typeof(C2SDisconnectPacket))
+                {
+                    logger.log("We are disconneting and just finished sending the packet so byeeeee");
+                    onError();
+                    Dispose();
+                }
+                if (packetsToWrite.Count > 0)
+                {
+                    BeginSendPacket();
+                }
+                else
+                {
+                    sendingPacket = false;
+                    currentSentPacket = null;
+                }
+                
                 if (!isServer)
                 {
                     lastCheckedIn = DateTime.UtcNow;
                 }
             }catch
             {
+                logger.log("We had an error sending a packet(EndSendPacket), potentially due to unsafe threading, if you encounter this and it does not happen consistently tell SupaMaggie70 because its kinda weird");
                 onError();
                 Dispose();
             }
@@ -304,7 +308,7 @@ namespace SupaStuff.Net.Shared
                 //Start sending a packet if you can
                 if (!sendingPacket && packetsToWrite.Count > 0)
                 {
-                    StartSendPacket();
+                    BeginSendPacket();
                 }
 
                 //Handle incoming packets
@@ -321,11 +325,14 @@ namespace SupaStuff.Net.Shared
                 }
                 if (isServer && Math.TimeBetween(lastCheckedIn,now) > MaxUncheckedTime)
                 {
+                    logger.log("We kicked a client because they waited too long to check in");
+                    onError();
                     Dispose();
                 }
             }
             catch
             {
+                logger.log("We had an undisclosed error updating, so now we're gonna leave");
                 Dispose();
             }
         }
@@ -358,6 +365,7 @@ namespace SupaStuff.Net.Shared
             if (packetsToWrite.Count + 1 == packetsToWrite.Capacity)
             {
                 //Too many packets in queue!
+                logger.log("Too many packets in queue, we're out!");
                 onError();
                 try
                 {

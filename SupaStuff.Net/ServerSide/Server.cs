@@ -98,8 +98,8 @@ namespace SupaStuff.Net.ServerSide
                 }
                 else
                 {
-                    connection.Dispose();
                     Main.ServerLogger.log("Rejected connection from " + connection.address + " because we already have the max number of concurrent connections, " + maxConnections + "!");
+                    connection.Dispose();
                 }
                 listener.BeginAcceptTcpClient(new System.AsyncCallback(ClientConnected), null);
             }catch
@@ -160,6 +160,7 @@ namespace SupaStuff.Net.ServerSide
         {
             Main.ServerLogger.log("Kicking " + connection.address + " because we want to kick him idk");
             connection.Dispose();
+            
         }
         /// <summary>
         /// Create a new local connection to the server

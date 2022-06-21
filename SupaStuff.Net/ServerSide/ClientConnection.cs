@@ -38,6 +38,7 @@ namespace SupaStuff.Net.ServerSide
                 Main.ServerLogger.log("Kicking " + address + " because they kicked us first and we're mad");
                 Dispose();
             } ;
+            packetStream.logger = Main.ServerLogger;
             address = (tcpClient.Client.RemoteEndPoint as IPEndPoint).Address;
             connectionStarted = DateTime.UtcNow;
         }
@@ -105,19 +106,13 @@ namespace SupaStuff.Net.ServerSide
         }
         public virtual void Kick(string message)
         {
-            lock (packetStream.packetsToWrite)
-            {
-                packetStream.packetsToWrite.Clear();
-                packetStream.packetsToWrite.Add(new S2CKickPacket(message));
-            }
+            packetStream.packetsToWrite.Clear();
+            packetStream.packetsToWrite.Add(new S2CKickPacket(message));
         }
         public virtual void Kick()
         {
-            lock (packetStream.packetsToWrite)
-            {
-                packetStream.packetsToWrite.Clear();
-                packetStream.packetsToWrite.Add(new S2CKickPacket());
-            }
+            packetStream.packetsToWrite.Clear();
+            packetStream.packetsToWrite.Add(new S2CKickPacket());
         }
     }
     public enum HandshakeStage
