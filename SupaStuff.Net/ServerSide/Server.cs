@@ -19,7 +19,7 @@ namespace SupaStuff.Net.ServerSide
         public LocalClientConnection localConnection;
         public List<ClientConnection> connections;
         public int maxConnections = 8;
-        public static byte[] password;
+        public static byte[] password = new byte[0];
         public static void GetHost()
         {
             var hosts = Dns.GetHostEntry(Dns.GetHostName());    

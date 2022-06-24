@@ -11,6 +11,9 @@ namespace SupaStuff.Net.Packets.Util
         public static Dictionary<int, Type> s2ctypes;
         public static Dictionary<int, Func<byte[], Packet>> c2sConstructors;
         public static Dictionary<int, Func<byte[],Packet>> s2cConstructors;
+
+        public static Dictionary<int, PacketTypeInfo> c2sTypes;
+        public static Dictionary<int, PacketTypeInfo> s2cTypes;
         /// <summary>
         /// Gets the classes with the APacket attribute to add to a list, for easier encoding and decoding
         /// </summary>
@@ -20,6 +23,9 @@ namespace SupaStuff.Net.Packets.Util
             s2ctypes = new Dictionary<int, Type>();
             c2sConstructors = new Dictionary<int, Func<byte[], Packet>>();
             s2cConstructors = new Dictionary<int, Func<byte[], Packet>>();
+            c2sTypes = new Dictionary<int, PacketTypeInfo>();
+            s2cTypes = new Dictionary<int, PacketTypeInfo>();
+            
             Type[] types =  TypeFinder.ReGetTypes();
             foreach (Type type in types)
             {
@@ -36,6 +42,10 @@ namespace SupaStuff.Net.Packets.Util
                         ConstructorInfo constructorInfo = type.GetConstructor(new Type[] { typeof(byte[]) });
                         Func<byte[], Packet> func = (byte[] bytes) => constructorInfo.Invoke(new object[] { bytes }) as Packet;
                         s2cConstructors.Add(property.PacketID, func);
+                        PacketTypeInfo info = new PacketTypeInfo();
+                        info.type = type;
+                        info.constructor = func;
+                        s2cTypes.Add(property.PacketID, info);
                     }
                     else
                     {
@@ -46,11 +56,20 @@ namespace SupaStuff.Net.Packets.Util
                         c2stypes.Add(property.PacketID, type);
                         ConstructorInfo constructorInfo = type.GetConstructor(new Type[] { typeof(byte[]) });
                         Func<byte[], Packet> func = (byte[] bytes) => constructorInfo.Invoke(new object[] { bytes }) as Packet;
+                        Func<int, bool> lenFunc = GetLengthFunc(type);
                         c2sConstructors.Add(property.PacketID, func);
-
+                        PacketTypeInfo info = new PacketTypeInfo();
+                        info.type = type;
+                        info.constructor = func;
+                        c2sTypes.Add(property.PacketID, info);
                     }
                 }
             }
+        }
+        private static readonly Type[] argTypes = new Type[] { typeof(byte) };
+        public static Func<int,bool> GetLengthFunc(Type type)
+        {
+            MethodInfo method = type.GetMethod("",argTypes);
         }
         [Obsolete]
         public static Type GetS2CPacket(int id)

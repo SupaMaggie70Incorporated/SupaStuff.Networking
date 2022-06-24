@@ -11,6 +11,7 @@ namespace SupaStuff.Net.Packets.BuiltIn
         public byte[] bytes;
         public override byte[] Bytify()
         {
+            Main.ClientLogger.log("Bytifying password packet with password " + Encoding.ASCII.GetString(bytes));
             return bytes;
         }
         public override void Execute(ClientConnection sender)

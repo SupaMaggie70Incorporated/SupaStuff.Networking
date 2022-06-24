@@ -224,13 +224,25 @@ namespace SupaStuff.Net.Shared
                 Packet packet = packetsToWrite[0];
                 packetsToWrite.RemoveAt(0);
                 currentSentPacket = packet;
-                byte[] bytes = Packet.EncodePacket(packet);
+                byte[] bytes;
+                try
+                {
+                    bytes = Packet.EncodePacket(packet);
+                }
+                catch (Exception ex)
+                {
+                    logger.log("Error encoding packet of type " + packet.GetType() + " : undisclosed error");
+                    onError();
+                    Dispose();
+                    return;
+                }
                 stream.BeginWrite(bytes, 0, bytes.Length, new AsyncCallback(EndSendPacket), null);
             }catch
             {
                 logger.log("We had an error sending a packet(BeginSendPacket), potentially due to unsafe threading, if you encounter this and it does not happen consistently tell SupaMaggie70 because its kinda weird");
                 onError();
                 Dispose();
+                return;
             }
         }
         /// <summary>

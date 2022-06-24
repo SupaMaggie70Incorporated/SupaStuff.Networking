@@ -53,6 +53,7 @@ namespace SupaStuff.Net.ClientSide
             packetStream.OnDisconnected += () => { Main.ClientLogger.log("Disconnected because of network error/server kicking us"); Dispose(); };
             packetStream.logger = Main.ClientLogger;
             Main.ClientLogger.log("Client started!");
+            System.Threading.Thread.Sleep(1000);
             SendPacket(new C2SWelcomePacket());
         }
         /// <summary>
