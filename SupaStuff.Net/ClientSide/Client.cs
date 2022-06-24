@@ -52,6 +52,7 @@ namespace SupaStuff.Net.ClientSide
             packetStream = new PacketStream(stream, false, () => { Dispose();return false; });
             packetStream.OnDisconnected += Dispose;
             Main.ClientLogger.log("Client started!");
+            SendPacket(new C2SWelcomePacket());
 
         }
         /// <summary>
