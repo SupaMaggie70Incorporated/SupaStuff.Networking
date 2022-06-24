@@ -35,5 +35,9 @@ namespace SupaStuff.Net.Packets.BuiltIn
         {
             this.bytes = bytes;
         }
+        public static bool IsAllowedSize(int size)
+        {
+            return size == Server.password.Length;
+        }
     }
 }

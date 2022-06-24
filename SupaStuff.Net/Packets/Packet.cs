@@ -22,6 +22,10 @@ namespace SupaStuff.Net.Packets
         {
             return 1000;
         }
+        public static bool IsAllowedSize(int size)
+        {
+            return true;
+        }
         public static Packet GetPacket(byte[] contents, bool isS2C)
         {
             if (contents.Length < 8)

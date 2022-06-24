@@ -31,5 +31,9 @@ namespace SupaStuff.Net.Packets.BuiltIn
         {
             message = defaultMessage;
         }
+        public static bool IsAllowedSize(int size)
+        {
+            return size < 1024;
+        }
     }
 }

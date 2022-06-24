@@ -13,6 +13,8 @@ using System.Reflection;
 using System.Net.Sockets;
 using SupaStuff.Net.Packets;
 using SupaStuff.Net.Packets.BuiltIn;
+
+using SupaStuff.Net.Packets.Util;
 namespace SupaStuff.Net.Shared
 {
     public class PacketStream : IDisposable
@@ -79,6 +81,24 @@ namespace SupaStuff.Net.Shared
                         packetHeaderComplete = true;
                         packetBody = new byte[packetSize];
                         packetBodyIndex = 0;
+
+
+                        if(isServer)
+                        {
+                            if (!PacketTypesFinder.c2sTypes[packetID].isRightLength(packetSize))
+                            {
+                                Dispose();
+                                return false;
+                            }
+                        }
+                        else
+                        {
+                            if (!PacketTypesFinder.s2cTypes[packetID].isRightLength(packetSize))
+                            {
+                                Dispose();
+                                return false;
+                            }
+                        }
                     }
                     else
                     {

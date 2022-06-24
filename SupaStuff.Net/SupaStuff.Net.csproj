@@ -7,7 +7,7 @@
 
   <ItemGroup>
     <Reference Include="SupaStuff.Core">
-      <HintPath>..\..\..\..\Magnus\Code Workspaces\Unity\Modules\SupaStuff\Core\SupaStuff.Core\SupaStuff.Core\bin\Release\netstandard2.0\SupaStuff.Core.dll</HintPath>
+      <HintPath>..\..\SupaStuff.Core\SupaStuff.Core\bin\Debug\netstandard2.0\SupaStuff.Core.dll</HintPath>
     </Reference>
   </ItemGroup>
 

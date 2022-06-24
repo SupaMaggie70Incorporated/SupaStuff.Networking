@@ -8,6 +8,7 @@ using System.Net;
 using SupaStuff.Net.ServerSide;
 using SupaStuff.Net.Shared;
 using SupaStuff.Net.Packets;
+using SupaStuff.Net.Packets.BuiltIn;
 
 namespace SupaStuff.Net.ClientSide
 {
@@ -15,7 +16,7 @@ namespace SupaStuff.Net.ClientSide
     {
         private TcpClient tcpClient;
         private NetworkStream stream;
-        public static Client Instance;
+        public static Client Instance = null;
         public bool IsLocal = false;
         public bool IsActive;
         public LocalClientConnection localConnection;

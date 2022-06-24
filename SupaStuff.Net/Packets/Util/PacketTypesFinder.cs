@@ -7,10 +7,6 @@ namespace SupaStuff.Net.Packets.Util
 {
     internal static class PacketTypesFinder
     {
-        public static Dictionary<int, Type> c2stypes;
-        public static Dictionary<int, Type> s2ctypes;
-        public static Dictionary<int, Func<byte[], Packet>> c2sConstructors;
-        public static Dictionary<int, Func<byte[],Packet>> s2cConstructors;
 
         public static Dictionary<int, PacketTypeInfo> c2sTypes;
         public static Dictionary<int, PacketTypeInfo> s2cTypes;
@@ -19,10 +15,6 @@ namespace SupaStuff.Net.Packets.Util
         /// </summary>
         public static void GetTypes()
         {
-            c2stypes = new Dictionary<int, Type>();
-            s2ctypes = new Dictionary<int, Type>();
-            c2sConstructors = new Dictionary<int, Func<byte[], Packet>>();
-            s2cConstructors = new Dictionary<int, Func<byte[], Packet>>();
             c2sTypes = new Dictionary<int, PacketTypeInfo>();
             s2cTypes = new Dictionary<int, PacketTypeInfo>();
             
@@ -34,52 +26,56 @@ namespace SupaStuff.Net.Packets.Util
                 {
                     if (property.isS2C)
                     {
-                        if (s2ctypes.ContainsKey(property.PacketID))
+                        if (s2cTypes.ContainsKey(property.PacketID))
                         {
-                            throw new PacketException($"Multiple S2C packets with the same id found! Fix this problem please!\nPackets sharing id:\n    {s2ctypes[property.PacketID].FullName}\n    {type.FullName}");
+                            throw new PacketException($"Multiple S2C packets with the same id found! Fix this problem please!\nPackets sharing id:\n    {s2cTypes[property.PacketID].type.FullName}\n    {type.FullName}");
                         }
-                        s2ctypes.Add(property.PacketID, type);
                         ConstructorInfo constructorInfo = type.GetConstructor(new Type[] { typeof(byte[]) });
                         Func<byte[], Packet> func = (byte[] bytes) => constructorInfo.Invoke(new object[] { bytes }) as Packet;
-                        s2cConstructors.Add(property.PacketID, func);
                         PacketTypeInfo info = new PacketTypeInfo();
                         info.type = type;
                         info.constructor = func;
+                        info.isRightLength = GetLengthFunc(type);
                         s2cTypes.Add(property.PacketID, info);
                     }
                     else
                     {
-                        if (c2stypes.ContainsKey(property.PacketID))
+                        if (c2sTypes.ContainsKey(property.PacketID))
                         {
-                            throw new PacketException($"Multiple C2S packets with the same id found! Fix this problem please!\nPackets sharing id:\n    {s2ctypes[property.PacketID].FullName}\n    {type.FullName}");
+                            throw new PacketException($"Multiple C2S packets with the same id found! Fix this problem please!\nPackets sharing id:\n    {s2cTypes[property.PacketID].type.FullName}\n    {type.FullName}");
                         }
-                        c2stypes.Add(property.PacketID, type);
                         ConstructorInfo constructorInfo = type.GetConstructor(new Type[] { typeof(byte[]) });
                         Func<byte[], Packet> func = (byte[] bytes) => constructorInfo.Invoke(new object[] { bytes }) as Packet;
                         Func<int, bool> lenFunc = GetLengthFunc(type);
-                        c2sConstructors.Add(property.PacketID, func);
                         PacketTypeInfo info = new PacketTypeInfo();
                         info.type = type;
                         info.constructor = func;
+                        info.isRightLength = GetLengthFunc(type);
                         c2sTypes.Add(property.PacketID, info);
                     }
                 }
             }
         }
         private static readonly Type[] argTypes = new Type[] { typeof(byte) };
+        private static readonly BindingFlags flags = BindingFlags.Public | BindingFlags.NonPublic | BindingFlags.Static;
         public static Func<int,bool> GetLengthFunc(Type type)
         {
-            MethodInfo method = type.GetMethod("",argTypes);
+            MethodInfo method = type.GetMethod("IsAllowedSize",flags,null,argTypes,null);
+            if(method == null)
+            {
+                return Packet.IsAllowedSize;
+            }
+            return (int i) => (bool)(method.Invoke(null, new object[] { i }) as bool?);
         }
         [Obsolete]
         public static Type GetS2CPacket(int id)
         {
-            return s2ctypes[id];
+            return s2cTypes[id].type;
         }
         [Obsolete]
         public static Type GetC2SPacket(int id)
         {
-            return c2stypes[id];
+            return c2sTypes[id].type;
         }
         [Obsolete]
         public static Type GetPacket(int id, bool isS2C)
@@ -89,8 +85,8 @@ namespace SupaStuff.Net.Packets.Util
         }
         public static Func<byte[],Packet> GetConstructor(int id,bool isS2C)
         {
-            if (isS2C) return s2cConstructors[id];
-            else return c2sConstructors[id];
+            if (isS2C) return s2cTypes[id].constructor;
+            else return c2sTypes[id].constructor;
         }
     }
 }

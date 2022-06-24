@@ -22,5 +22,10 @@ namespace SupaStuff.Net.Packets.BuiltIn
         public YesImHerePacket(byte[] bytes) : base(null)
         {
         }
+
+        public static bool IsAllowedSize(int size)
+        {
+            return size == 0;
+        }
     }
 }
