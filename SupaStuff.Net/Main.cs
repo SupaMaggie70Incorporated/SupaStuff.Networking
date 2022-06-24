@@ -21,5 +21,16 @@ namespace SupaStuff.Net
             Packets.Util.PacketTypesFinder.GetTypes();
             ServerSide.Server.GetHost();
         }
+        public static void Update()
+        {
+            if(ServerSide.Server.Instance != null)
+            {
+                //ServerSide.Server.Instance.Update();
+            }
+            if(ClientSide.Client.Instance != null)
+            {
+                //ClientSide.Client.Instance.Update();
+            }
+        }
     }
 }

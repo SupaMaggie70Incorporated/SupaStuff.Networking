@@ -29,31 +29,34 @@ namespace SupaStuff.Net.Example
 
         public ExampleDemo()
         {
-            Console.WriteLine("Initiating Scarry Black Window....");
+            Main.NetLogger.log("Initiating Scarry Black Window...");
             
-            testServer = new Server();
+            testServer = new Server(4);
             /*
             testServer.OnClientConnected += (ClientConnection conn) => {
                 conn.SendPacket(new ExamplePacket2());
             };
             */
-            Console.WriteLine("Starting Server at\n     " + Server.host.ToString() + ":" + Server.port);
+            Main.NetLogger.log("Starting Server at\n     " + Server.host.ToString() + ":" + Server.port);
 
             
             Console.ReadKey();
 
             client = new ClientSide.Client(Server.host);
-            Console.WriteLine("Client Started");
+            Main.NetLogger.log("Client Started");
 
             Task task = new Task(updateLoop);
             task.Start();
 
+            Console.ReadKey();
+
+            Console.ReadKey();
             client.SendPacket(new ExamplePacket(129));
             client.SendPacket(new ExamplePacket(129));
 
             Console.ReadKey();
 
-            Console.WriteLine("Closing Server..." + testServer.connections.Count);
+            Main.NetLogger.log("Closing Server..." + testServer.connections.Count);
             testServer.Dispose();
             isRunning = false;
 
@@ -61,7 +64,7 @@ namespace SupaStuff.Net.Example
             Console.ReadKey();
 
 
-            Console.WriteLine("Completed Successfully");
+            Main.NetLogger.log("Completed Successfully");
 
         }
         public void updateLoop()
@@ -70,7 +73,7 @@ namespace SupaStuff.Net.Example
             {
                 client.Update();
                 testServer.Update();
-                Task.Delay(50);
+                Task.Delay(1000);
             }
         }
 

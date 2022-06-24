@@ -9,7 +9,7 @@ using System.Diagnostics;
 namespace SupaStuff.Net.Packets.Util
 {
 
-    public static class Bytifier
+    internal static class Bytifier
     {
         private static Dictionary<Type, Func<object, byte[]>> bytifyFunctions = new Dictionary<Type, Func<object, byte[]>>();
         private static Dictionary<Type, Func<byte[], object>> debytifyFunctions = new Dictionary<Type, Func<byte[], object>>();

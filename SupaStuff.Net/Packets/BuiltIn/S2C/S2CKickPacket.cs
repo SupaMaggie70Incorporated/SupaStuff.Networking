@@ -3,9 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace SupaStuff.Net.Packets
+namespace SupaStuff.Net.Packets.BuiltIn
 {
-    [APacket(-1,true)]
+    [APacket(-521341,true,false)]
     internal sealed class S2CKickPacket : Packet
     {
         public string message;

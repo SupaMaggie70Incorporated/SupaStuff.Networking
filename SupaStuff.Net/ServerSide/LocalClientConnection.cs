@@ -19,7 +19,7 @@ namespace SupaStuff.Net.ServerSide
             client = new ClientSide.Client(this);
             Main.ClientLogger.log("Local client initialized");
         }
-        public static LocalClientConnection LocalClient()
+        internal static LocalClientConnection LocalClient()
         {
             return new LocalClientConnection();
         }

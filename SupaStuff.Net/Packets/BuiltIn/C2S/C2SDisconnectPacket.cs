@@ -3,9 +3,9 @@ using System;
 using System.Collections.Generic;
 using System.Text;
 
-namespace SupaStuff.Net.Packets
+namespace SupaStuff.Net.Packets.BuiltIn
 {
-    [APacket(-1, false)]
+    [APacket(-5662131, false,false)]
     internal sealed class C2SDisconnectPacket : Packet
     {
         public string message;

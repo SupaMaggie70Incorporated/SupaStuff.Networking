@@ -8,13 +8,13 @@ using SupaStuff.Net.ServerSide;
 
 namespace SupaStuff.Net.Example
 {
-    [APacket(1 , false)]
+    [APacket(1123453 , false)]
     public class ExamplePacket : Packet
     {
         public short num;
         public override void Execute(ClientConnection sender)
         {
-            Console.WriteLine("Number: " + num.ToString());
+            Main.NetLogger.log("Number: " + num.ToString());
             return;
         }
         public override byte[] Bytify()

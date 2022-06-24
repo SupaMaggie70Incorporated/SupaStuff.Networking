@@ -7,6 +7,7 @@ using System.Net.Sockets;
 using System.Net;
 using SupaStuff.Net.Shared;
 using SupaStuff.Net.Packets;
+using SupaStuff.Net.Packets.BuiltIn;
 namespace SupaStuff.Net.ServerSide
 {
     public class ClientConnection : IDisposable
@@ -19,6 +20,9 @@ namespace SupaStuff.Net.ServerSide
         protected HandshakeStage handshakeStage = HandshakeStage.unstarted;
         public PacketStream packetStream;
         public IPAddress address;
+
+        internal DateTime connectionStarted;
+        internal bool finishAuth = false;
         public ClientConnection(IAsyncResult ar)
         {
             tcpClient = Server.Instance.listener.EndAcceptTcpClient(ar);
@@ -30,13 +34,18 @@ namespace SupaStuff.Net.ServerSide
             stream = tcpClient.GetStream();
             packetStream = new PacketStream(stream, true, () => false);
             packetStream.clientConnection = this;
-            packetStream.OnDisconnected += Dispose;
+            packetStream.OnDisconnected += () => {
+                Main.ServerLogger.log("Kicking " + address + " because they kicked us first and we're mad");
+                Dispose();
+            } ;
+            packetStream.logger = Main.ServerLogger;
             address = (tcpClient.Client.RemoteEndPoint as IPEndPoint).Address;
+            connectionStarted = DateTime.UtcNow;
         }
         protected ClientConnection()
         {
         }
-        public static LocalClientConnection LocalClient()
+        internal static LocalClientConnection LocalClient()
         {
             return LocalClientConnection.LocalClient();
         }
@@ -53,7 +62,15 @@ namespace SupaStuff.Net.ServerSide
         }
         public virtual void Update()
         {
+            if (!IsActive) Console.WriteLine("Wait, why am I still being updated?");
             packetStream.Update();
+            if (!finishAuth)
+            {
+                if (Math.TimeSince(connectionStarted) > 10) {
+                    Main.ServerLogger.log("Shutting down connection to " + address + " because they were unable to authorize themselves");
+                    Dispose();
+                }
+            }
         }
         /// <summary>
         /// Kick the client from the server with a message
@@ -66,6 +83,14 @@ namespace SupaStuff.Net.ServerSide
             if (!IsActive) return;
             IsActive = false;
             Main.ServerLogger.log("Connection to client " + address + " terminated");
+            try
+            {
+                Server.Instance.connections.Remove(this);
+            }
+            catch
+            {
+
+            }
             if (IsLocal)
             {
             }
@@ -81,19 +106,13 @@ namespace SupaStuff.Net.ServerSide
         }
         public virtual void Kick(string message)
         {
-            lock (packetStream.packetsToWrite)
-            {
-                packetStream.packetsToWrite.Clear();
-                packetStream.packetsToWrite.Add(new S2CKickPacket(message));
-            }
+            packetStream.packetsToWrite.Clear();
+            packetStream.packetsToWrite.Add(new S2CKickPacket(message));
         }
         public virtual void Kick()
         {
-            lock (packetStream.packetsToWrite)
-            {
-                packetStream.packetsToWrite.Clear();
-                packetStream.packetsToWrite.Add(new S2CKickPacket());
-            }
+            packetStream.packetsToWrite.Clear();
+            packetStream.packetsToWrite.Add(new S2CKickPacket());
         }
     }
     public enum HandshakeStage
