@@ -16,7 +16,7 @@ namespace SupaStuff.Net.ClientSide
         private TcpClient tcpClient;
         private NetworkStream stream;
         public static Client Instance;
-        public bool IsLocal;
+        public bool IsLocal = false;
         public bool IsActive;
         public LocalClientConnection localConnection;
         public PacketStream packetStream;
@@ -53,7 +53,6 @@ namespace SupaStuff.Net.ClientSide
             Main.ClientLogger.log("Client started!");
 
         }
-        [Obsolete]
         /// <summary>
         /// Create a local client connection
         /// </summary>
