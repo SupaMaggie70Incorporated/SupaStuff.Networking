@@ -5,10 +5,10 @@ using System.Text;
 
 namespace SupaStuff.Net.Packets.BuiltIn
 {
-    [APacket(-5662131, false,false)]
+    [APacket(-5662131, false, false)]
     internal sealed class C2SDisconnectPacket : Packet
     {
-        public string message;
+        public readonly string message;
         public static readonly string defaultMessage = "We are leaving now, goodbye!";
         public override byte[] Bytify()
         {

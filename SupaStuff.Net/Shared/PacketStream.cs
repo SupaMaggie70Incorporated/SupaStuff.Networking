@@ -19,9 +19,9 @@ namespace SupaStuff.Net.Shared
 {
     public class PacketStream : IDisposable
     {
-        public bool isServer;
-        public bool isRunning = true;
-        public ServerSide.ClientConnection clientConnection = null;
+        internal bool isServer;
+        internal bool isRunning = true;
+        internal ServerSide.ClientConnection clientConnection = null;
         private NetworkStream stream;
         private Func<bool> customOnError;
         internal List<Packet> packetsToWrite = new List<Packet>(1024);

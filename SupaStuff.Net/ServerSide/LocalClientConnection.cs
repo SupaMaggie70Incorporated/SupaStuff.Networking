@@ -12,7 +12,7 @@ namespace SupaStuff.Net.ServerSide
 {
     public class LocalClientConnection : ClientConnection
     {
-        public ClientSide.Client client;
+        public ClientSide.Client client { get; internal set; }
         private LocalClientConnection()
         {
             this.IsLocal = true;

@@ -14,21 +14,22 @@ namespace SupaStuff.Net.ClientSide
 {
     public class Client : IDisposable
     {
-        private TcpClient tcpClient;
-        private NetworkStream stream;
-        public static Client Instance = null;
-        public bool IsLocal = false;
-        public bool IsActive;
-        public LocalClientConnection localConnection;
-        public PacketStream packetStream;
+        public TcpClient tcpClient { get; private set; }
+        public NetworkStream stream { get; private set; }
+        public static Client Instance { get; private set; }
+        public bool IsLocal { get; private set; }
+        public bool IsActive { get; internal set; }
+        public LocalClientConnection localConnection { get; private set; }
+        public PacketStream packetStream { get; private set; }
         /// <summary>
         /// Create a client and attempt to connect to server
         /// </summary>
         /// <param name="ip"></param>
         public Client(IPAddress ip)
         {
-            //External client
             IsLocal = false;
+            IsActive = true;
+            //External client
             Instance = this;
             //Server script will calculate the local IP stuff for us
             Server.GetHost();
@@ -63,6 +64,7 @@ namespace SupaStuff.Net.ClientSide
         {
             //Local client
             this.IsLocal = true;
+            IsActive = true;
             Instance = this;
             Server.GetHost();
             localConnection = localconnection;

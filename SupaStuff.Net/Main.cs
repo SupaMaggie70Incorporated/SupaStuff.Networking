@@ -9,9 +9,9 @@ namespace SupaStuff.Net
 {
     public static class Main
     {
-        public static Logger NetLogger;
-        public static Logger ServerLogger;
-        public static Logger ClientLogger;
+        public static Logger NetLogger { get;private set; }
+        public static Logger ServerLogger { get;private set; }
+        public static Logger ClientLogger { get;private set; }
         public static void Init()
         {
             NetLogger = Logger.GetLogger("Net/Main");
@@ -25,11 +25,11 @@ namespace SupaStuff.Net
         {
             if(ServerSide.Server.Instance != null)
             {
-                //ServerSide.Server.Instance.Update();
+                ServerSide.Server.Instance.Update();
             }
             if(ClientSide.Client.Instance != null)
             {
-                //ClientSide.Client.Instance.Update();
+                ClientSide.Client.Instance.Update();
             }
         }
     }

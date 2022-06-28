@@ -11,14 +11,14 @@ namespace SupaStuff.Net.ServerSide
 {
     public class Server : IDisposable
     {
-        public static Server Instance = null;
-        public TcpListener listener;
-        public static IPAddress host;
+        public static Server Instance { get; private set; }
+        public TcpListener listener { get; private set; }
+        public static IPAddress host { get; private set; }
         public static int port = 12345;
-        public bool IsActive = true;
-        public LocalClientConnection localConnection;
-        public List<ClientConnection> connections;
-        public int maxConnections = 8;
+        public bool IsActive { get; private set; }
+        public LocalClientConnection localConnection { get; private set; }
+        public List<ClientConnection> connections { get; private set; }
+        public readonly int maxConnections = 8;
         public static byte[] password = new byte[0];
         public static void GetHost()
         {
@@ -35,6 +35,7 @@ namespace SupaStuff.Net.ServerSide
         }
         public Server(int maxConnections)
         {
+            IsActive = true;
             Instance = this;
             this.maxConnections = maxConnections;
             connections = new List<ClientConnection>(maxConnections);

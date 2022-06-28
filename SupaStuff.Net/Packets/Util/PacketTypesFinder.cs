@@ -8,8 +8,8 @@ namespace SupaStuff.Net.Packets.Util
     internal static class PacketTypesFinder
     {
 
-        public static Dictionary<int, PacketTypeInfo> c2sTypes;
-        public static Dictionary<int, PacketTypeInfo> s2cTypes;
+        internal static Dictionary<int, PacketTypeInfo> c2sTypes;
+        internal static Dictionary<int, PacketTypeInfo> s2cTypes;
         /// <summary>
         /// Gets the classes with the APacket attribute to add to a list, for easier encoding and decoding
         /// </summary>

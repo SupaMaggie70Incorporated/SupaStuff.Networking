@@ -14,12 +14,12 @@ namespace SupaStuff.Net.ServerSide
     {
         protected TcpClient tcpClient;
         protected NetworkStream stream;
-        public bool IsLocal;
+        public bool IsLocal { get; protected set; }
         protected List<Packet> packetsToWrite = new List<Packet>();
-        public bool IsActive = true;
+        public bool IsActive { get; private set; }
         protected HandshakeStage handshakeStage = HandshakeStage.unstarted;
-        public PacketStream packetStream;
-        public IPAddress address;
+        public PacketStream packetStream { get; protected set; }
+        public IPAddress address { get; protected set; }
 
         internal DateTime connectionStarted;
         internal bool finishAuth = false;
@@ -29,6 +29,8 @@ namespace SupaStuff.Net.ServerSide
         }
         public ClientConnection(TcpClient tcpClient)
         {
+            IsActive = true;
+            IsLocal = false;
             this.tcpClient = tcpClient;
             tcpClient.NoDelay = false;
             stream = tcpClient.GetStream();
@@ -44,6 +46,7 @@ namespace SupaStuff.Net.ServerSide
         }
         protected ClientConnection()
         {
+            IsActive = true;
         }
         internal static LocalClientConnection LocalClient()
         {

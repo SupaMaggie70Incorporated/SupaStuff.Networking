@@ -5,9 +5,12 @@ using System.Net.Sockets;
 using System.Linq;
 using System.Text;
 using System.Net.NetworkInformation;
+using System;
+
 namespace SupaStuff.Net.ClientSide
 {
-    public static class LanScan
+    [Obsolete]
+    internal static class LanScan
     {
         /// <summary>
         /// Gets the games on the current local network

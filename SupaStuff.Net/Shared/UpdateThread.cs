@@ -8,7 +8,8 @@ using Timer = System.Timers.Timer;
 
 namespace SupaStuff.Net.Shared
 {
-    public class UpdateThread : IDisposable
+    [Obsolete]
+    internal class UpdateThread : IDisposable
     {
         public static UpdateThread Instance;
         private bool running;

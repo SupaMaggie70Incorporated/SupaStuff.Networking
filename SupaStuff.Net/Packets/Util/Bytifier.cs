@@ -13,7 +13,6 @@ namespace SupaStuff.Net.Packets.Util
     {
         private static Dictionary<Type, Func<object, byte[]>> bytifyFunctions = new Dictionary<Type, Func<object, byte[]>>();
         private static Dictionary<Type, Func<byte[], object>> debytifyFunctions = new Dictionary<Type, Func<byte[], object>>();
-        public static int timesPrinted = 0;
         /// <summary>
         /// Finds the packets out there, collects them and their functions, and adds them to lists
         /// </summary>
@@ -24,14 +23,7 @@ namespace SupaStuff.Net.Packets.Util
             int numB2O = 0;
             foreach (MethodInfo method in methods)
             {
-                if (method != null)
-                {
-                    if(timesPrinted < 5)
-                    {
-                        timesPrinted++;
-                    }
-                }
-                else continue;
+                if (method == null) continue;
                 AConvert convert = method.GetCustomAttribute<AConvert>();
                 if (convert == null) continue;
                 if (method.GetParameters().Length != 1)

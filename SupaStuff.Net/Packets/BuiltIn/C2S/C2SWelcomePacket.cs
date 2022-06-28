@@ -8,7 +8,7 @@ namespace SupaStuff.Net.Packets.BuiltIn
     [APacket(-538927,false,false)]
     internal class C2SWelcomePacket : Packet
     {
-        public byte[] bytes;
+        public readonly byte[] bytes;
         public override byte[] Bytify()
         {
             Main.ClientLogger.log("Bytifying password packet with password " + Encoding.ASCII.GetString(bytes));
