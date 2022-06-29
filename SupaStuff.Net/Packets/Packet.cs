@@ -12,7 +12,7 @@ namespace SupaStuff.Net.Packets
     public abstract class Packet : IBytifiable, IDisposable
     {
         public static int id;
-        public readonly DateTime startTime = DateTime.UtcNow;
+        internal DateTime startTime = DateTime.UtcNow;
 
         public Packet(byte[] bytes) : base(bytes)
         {
